@@ -1,0 +1,2826 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+    <meta charset="UTF-8">
+
+    <script async="" src="js/fbevents.js"></script><script async="" src="js/launcher.js"></script><script>
+      if (
+        navigator.userAgent.match(/MSIE|Internet Explorer/i) ||
+        navigator.userAgent.match(/Trident\/7\..*?rv:11/i)
+      ) {
+        var href = document.location.href;
+        if (!href.match(/[?&]nowprocket/)) {
+          if (href.indexOf("?") == -1) {
+            if (href.indexOf("#") == -1) {
+              document.location.href = href + "?nowprocket=1";
+            } else {
+              document.location.href = href.replace("#", "?nowprocket=1#");
+            }
+          } else {
+            if (href.indexOf("#") == -1) {
+              document.location.href = href + "&nowprocket=1";
+            } else {
+              document.location.href = href.replace("#", "&nowprocket=1#");
+            }
+          }
+        }
+      }
+    </script>
+    <script>
+      class RocketLazyLoadScripts {
+        constructor() {
+          (this.v = "1.2.3"),
+            (this.triggerEvents = [
+              "keydown",
+              "mousedown",
+              "mousemove",
+              "touchmove",
+              "touchstart",
+              "touchend",
+              "wheel",
+            ]),
+            (this.userEventHandler = this._triggerListener.bind(this)),
+            (this.touchStartHandler = this._onTouchStart.bind(this)),
+            (this.touchMoveHandler = this._onTouchMove.bind(this)),
+            (this.touchEndHandler = this._onTouchEnd.bind(this)),
+            (this.clickHandler = this._onClick.bind(this)),
+            (this.interceptedClicks = []),
+            window.addEventListener("pageshow", (t) => {
+              this.persisted = t.persisted;
+            }),
+            window.addEventListener("DOMContentLoaded", () => {
+              this._preconnect3rdParties();
+            }),
+            (this.delayedScripts = { normal: [], async: [], defer: [] }),
+            (this.trash = []),
+            (this.allJQueries = []);
+        }
+        _addUserInteractionListener(t) {
+          if (document.hidden) {
+            t._triggerListener();
+            return;
+          }
+          this.triggerEvents.forEach((e) =>
+            window.addEventListener(e, t.userEventHandler, { passive: !0 })
+          ),
+            window.addEventListener("touchstart", t.touchStartHandler, {
+              passive: !0,
+            }),
+            window.addEventListener("mousedown", t.touchStartHandler),
+            document.addEventListener("visibilitychange", t.userEventHandler);
+        }
+        _removeUserInteractionListener() {
+          this.triggerEvents.forEach((t) =>
+            window.removeEventListener(t, this.userEventHandler, {
+              passive: !0,
+            })
+          ),
+            document.removeEventListener(
+              "visibilitychange",
+              this.userEventHandler
+            );
+        }
+        _onTouchStart(t) {
+          "HTML" !== t.target.tagName &&
+            (window.addEventListener("touchend", this.touchEndHandler),
+            window.addEventListener("mouseup", this.touchEndHandler),
+            window.addEventListener("touchmove", this.touchMoveHandler, {
+              passive: !0,
+            }),
+            window.addEventListener("mousemove", this.touchMoveHandler),
+            t.target.addEventListener("click", this.clickHandler),
+            this._renameDOMAttribute(t.target, "onclick", "rocket-onclick"),
+            this._pendingClickStarted());
+        }
+        _onTouchMove(t) {
+          window.removeEventListener("touchend", this.touchEndHandler),
+            window.removeEventListener("mouseup", this.touchEndHandler),
+            window.removeEventListener("touchmove", this.touchMoveHandler, {
+              passive: !0,
+            }),
+            window.removeEventListener("mousemove", this.touchMoveHandler),
+            t.target.removeEventListener("click", this.clickHandler),
+            this._renameDOMAttribute(t.target, "rocket-onclick", "onclick"),
+            this._pendingClickFinished();
+        }
+        _onTouchEnd(t) {
+          window.removeEventListener("touchend", this.touchEndHandler),
+            window.removeEventListener("mouseup", this.touchEndHandler),
+            window.removeEventListener("touchmove", this.touchMoveHandler, {
+              passive: !0,
+            }),
+            window.removeEventListener("mousemove", this.touchMoveHandler);
+        }
+        _onClick(t) {
+          t.target.removeEventListener("click", this.clickHandler),
+            this._renameDOMAttribute(t.target, "rocket-onclick", "onclick"),
+            this.interceptedClicks.push(t),
+            t.preventDefault(),
+            t.stopPropagation(),
+            t.stopImmediatePropagation(),
+            this._pendingClickFinished();
+        }
+        _replayClicks() {
+          window.removeEventListener("touchstart", this.touchStartHandler, {
+            passive: !0,
+          }),
+            window.removeEventListener("mousedown", this.touchStartHandler),
+            this.interceptedClicks.forEach((t) => {
+              t.target.dispatchEvent(
+                new MouseEvent("click", {
+                  view: t.view,
+                  bubbles: !0,
+                  cancelable: !0,
+                })
+              );
+            });
+        }
+        _waitForPendingClicks() {
+          return new Promise((t) => {
+            this._isClickPending ? (this._pendingClickFinished = t) : t();
+          });
+        }
+        _pendingClickStarted() {
+          this._isClickPending = !0;
+        }
+        _pendingClickFinished() {
+          this._isClickPending = !1;
+        }
+        _renameDOMAttribute(t, e, r) {
+          t.hasAttribute &&
+            t.hasAttribute(e) &&
+            (event.target.setAttribute(r, event.target.getAttribute(e)),
+            event.target.removeAttribute(e));
+        }
+        _triggerListener() {
+          this._removeUserInteractionListener(this),
+            "loading" === document.readyState
+              ? document.addEventListener(
+                  "DOMContentLoaded",
+                  this._loadEverythingNow.bind(this)
+                )
+              : this._loadEverythingNow();
+        }
+        _preconnect3rdParties() {
+          let t = [];
+          document
+            .querySelectorAll("script[type=rocketlazyloadscript]")
+            .forEach((e) => {
+              if (e.hasAttribute("src")) {
+                let r = new URL(e.src).origin;
+                r !== location.origin &&
+                  t.push({
+                    src: r,
+                    crossOrigin:
+                      e.crossOrigin ||
+                      "module" === e.getAttribute("data-rocket-type"),
+                  });
+              }
+            }),
+            (t = [...new Map(t.map((t) => [JSON.stringify(t), t])).values()]),
+            this._batchInjectResourceHints(t, "preconnect");
+        }
+        async _loadEverythingNow() {
+          (this.lastBreath = Date.now()),
+            this._delayEventListeners(this),
+            this._delayJQueryReady(this),
+            this._handleDocumentWrite(),
+            this._registerAllDelayedScripts(),
+            this._preloadAllScripts(),
+            await this._loadScriptsFromList(this.delayedScripts.normal),
+            await this._loadScriptsFromList(this.delayedScripts.defer),
+            await this._loadScriptsFromList(this.delayedScripts.async);
+          try {
+            await this._triggerDOMContentLoaded(),
+              await this._triggerWindowLoad();
+          } catch (t) {
+            console.error(t);
+          }
+          window.dispatchEvent(new Event("rocket-allScriptsLoaded")),
+            this._waitForPendingClicks().then(() => {
+              this._replayClicks();
+            }),
+            this._emptyTrash();
+        }
+        _registerAllDelayedScripts() {
+          document
+            .querySelectorAll("script[type=rocketlazyloadscript]")
+            .forEach((t) => {
+              t.hasAttribute("data-rocket-src")
+                ? t.hasAttribute("async") && !1 !== t.async
+                  ? this.delayedScripts.async.push(t)
+                  : (t.hasAttribute("defer") && !1 !== t.defer) ||
+                    "module" === t.getAttribute("data-rocket-type")
+                  ? this.delayedScripts.defer.push(t)
+                  : this.delayedScripts.normal.push(t)
+                : this.delayedScripts.normal.push(t);
+            });
+        }
+        async _transformScript(t) {
+          return new Promise(
+            (await this._littleBreath(),
+            navigator.userAgent.indexOf("Firefox/") > 0 ||
+              "" === navigator.vendor)
+              ? (e) => {
+                  let r = document.createElement("script");
+                  [...t.attributes].forEach((t) => {
+                    let e = t.nodeName;
+                    "type" !== e &&
+                      ("data-rocket-type" === e && (e = "type"),
+                      "data-rocket-src" === e && (e = "src"),
+                      r.setAttribute(e, t.nodeValue));
+                  }),
+                    t.text && (r.text = t.text),
+                    r.hasAttribute("src")
+                      ? (r.addEventListener("load", e),
+                        r.addEventListener("error", e))
+                      : ((r.text = t.text), e());
+                  try {
+                    t.parentNode.replaceChild(r, t);
+                  } catch (i) {
+                    e();
+                  }
+                }
+              : async (e) => {
+                  function r() {
+                    t.setAttribute("data-rocket-status", "failed"), e();
+                  }
+                  try {
+                    let i = t.getAttribute("data-rocket-type"),
+                      n = t.getAttribute("data-rocket-src");
+                    t.text,
+                      i
+                        ? ((t.type = i), t.removeAttribute("data-rocket-type"))
+                        : t.removeAttribute("type"),
+                      t.addEventListener("load", function r() {
+                        t.setAttribute("data-rocket-status", "executed"), e();
+                      }),
+                      t.addEventListener("error", r),
+                      n
+                        ? (t.removeAttribute("data-rocket-src"), (t.src = n))
+                        : (t.src =
+                            "data:text/javascript;base64," +
+                            window.btoa(unescape(encodeURIComponent(t.text))));
+                  } catch (s) {
+                    r();
+                  }
+                }
+          );
+        }
+        async _loadScriptsFromList(t) {
+          let e = t.shift();
+          return e && e.isConnected
+            ? (await this._transformScript(e), this._loadScriptsFromList(t))
+            : Promise.resolve();
+        }
+        _preloadAllScripts() {
+          this._batchInjectResourceHints(
+            [
+              ...this.delayedScripts.normal,
+              ...this.delayedScripts.defer,
+              ...this.delayedScripts.async,
+            ],
+            "preload"
+          );
+        }
+        _batchInjectResourceHints(t, e) {
+          var r = document.createDocumentFragment();
+          t.forEach((t) => {
+            let i =
+              (t.getAttribute && t.getAttribute("data-rocket-src")) || t.src;
+            if (i) {
+              let n = document.createElement("link");
+              (n.href = i),
+                (n.rel = e),
+                "preconnect" !== e && (n.as = "script"),
+                t.getAttribute &&
+                  "module" === t.getAttribute("data-rocket-type") &&
+                  (n.crossOrigin = !0),
+                t.crossOrigin && (n.crossOrigin = t.crossOrigin),
+                t.integrity && (n.integrity = t.integrity),
+                r.appendChild(n),
+                this.trash.push(n);
+            }
+          }),
+            document.head.appendChild(r);
+        }
+        _delayEventListeners(t) {
+          let e = {};
+          function r(t, r) {
+            !(function t(r) {
+              !e[r] &&
+                ((e[r] = {
+                  originalFunctions: {
+                    add: r.addEventListener,
+                    remove: r.removeEventListener,
+                  },
+                  eventsToRewrite: [],
+                }),
+                (r.addEventListener = function () {
+                  (arguments[0] = i(arguments[0])),
+                    e[r].originalFunctions.add.apply(r, arguments);
+                }),
+                (r.removeEventListener = function () {
+                  (arguments[0] = i(arguments[0])),
+                    e[r].originalFunctions.remove.apply(r, arguments);
+                }));
+              function i(t) {
+                return e[r].eventsToRewrite.indexOf(t) >= 0 ? "rocket-" + t : t;
+              }
+            })(t),
+              e[t].eventsToRewrite.push(r);
+          }
+          function i(t, e) {
+            let r = t[e];
+            Object.defineProperty(t, e, {
+              get: () => r || function () {},
+              set(i) {
+                t["rocket" + e] = r = i;
+              },
+            });
+          }
+          r(document, "DOMContentLoaded"),
+            r(window, "DOMContentLoaded"),
+            r(window, "load"),
+            r(window, "pageshow"),
+            r(document, "readystatechange"),
+            i(document, "onreadystatechange"),
+            i(window, "onload"),
+            i(window, "onpageshow");
+        }
+        _delayJQueryReady(t) {
+          let e;
+          function r(r) {
+            if (r && r.fn && !t.allJQueries.includes(r)) {
+              r.fn.ready = r.fn.init.prototype.ready = function (e) {
+                return (
+                  t.domReadyFired
+                    ? e.bind(document)(r)
+                    : document.addEventListener("rocket-DOMContentLoaded", () =>
+                        e.bind(document)(r)
+                      ),
+                  r([])
+                );
+              };
+              let i = r.fn.on;
+              (r.fn.on = r.fn.init.prototype.on =
+                function () {
+                  if (this[0] === window) {
+                    function t(t) {
+                      return t
+                        .split(" ")
+                        .map((t) =>
+                          "load" === t || 0 === t.indexOf("load.")
+                            ? "rocket-jquery-load"
+                            : t
+                        )
+                        .join(" ");
+                    }
+                    "string" == typeof arguments[0] ||
+                    arguments[0] instanceof String
+                      ? (arguments[0] = t(arguments[0]))
+                      : "object" == typeof arguments[0] &&
+                        Object.keys(arguments[0]).forEach((e) => {
+                          let r = arguments[0][e];
+                          delete arguments[0][e], (arguments[0][t(e)] = r);
+                        });
+                  }
+                  return i.apply(this, arguments), this;
+                }),
+                t.allJQueries.push(r);
+            }
+            e = r;
+          }
+          r(window.jQuery),
+            Object.defineProperty(window, "jQuery", {
+              get: () => e,
+              set(t) {
+                r(t);
+              },
+            });
+        }
+        async _triggerDOMContentLoaded() {
+          (this.domReadyFired = !0),
+            await this._littleBreath(),
+            document.dispatchEvent(new Event("rocket-DOMContentLoaded")),
+            await this._littleBreath(),
+            window.dispatchEvent(new Event("rocket-DOMContentLoaded")),
+            await this._littleBreath(),
+            document.dispatchEvent(new Event("rocket-readystatechange")),
+            await this._littleBreath(),
+            document.rocketonreadystatechange &&
+              document.rocketonreadystatechange();
+        }
+        async _triggerWindowLoad() {
+          await this._littleBreath(),
+            window.dispatchEvent(new Event("rocket-load")),
+            await this._littleBreath(),
+            window.rocketonload && window.rocketonload(),
+            await this._littleBreath(),
+            this.allJQueries.forEach((t) =>
+              t(window).trigger("rocket-jquery-load")
+            ),
+            await this._littleBreath();
+          let t = new Event("rocket-pageshow");
+          (t.persisted = this.persisted),
+            window.dispatchEvent(t),
+            await this._littleBreath(),
+            window.rocketonpageshow &&
+              window.rocketonpageshow({ persisted: this.persisted });
+        }
+        _handleDocumentWrite() {
+          let t = new Map();
+          document.write = document.writeln = function (e) {
+            let r = document.currentScript;
+            r || console.error("WPRocket unable to document.write this: " + e);
+            let i = document.createRange(),
+              n = r.parentElement,
+              s = t.get(r);
+            void 0 === s && ((s = r.nextSibling), t.set(r, s));
+            let a = document.createDocumentFragment();
+            i.setStart(a, 0),
+              a.appendChild(i.createContextualFragment(e)),
+              n.insertBefore(a, s);
+          };
+        }
+        async _littleBreath() {
+          Date.now() - this.lastBreath > 45 &&
+            (await this._requestAnimFrame(), (this.lastBreath = Date.now()));
+        }
+        async _requestAnimFrame() {
+          return document.hidden
+            ? new Promise((t) => setTimeout(t))
+            : new Promise((t) => requestAnimationFrame(t));
+        }
+        _emptyTrash() {
+          this.trash.forEach((t) => t.remove());
+        }
+        static run() {
+          let t = new RocketLazyLoadScripts();
+          t._addUserInteractionListener(t);
+        }
+      }
+      RocketLazyLoadScripts.run();
+    </script>
+
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+
+    <link rel="stylesheet" href="css/custom.css">
+    <!-- This site is optimized with the Yoast SEO plugin v21.3 - https://yoast.com/wordpress/plugins/seo/ -->
+    <title>Projeto 30K - Venda em Dólar!</title>
+    <link rel="preload" as="font" href="./assets/images/Gotham-Light-1.woff2" crossorigin="">
+    <link rel="preload" as="font" href="./assets/images/Gotham-Bold-1.woff2" crossorigin="">
+
+    <link rel="stylesheet" href="css/site.css">
+
+    <meta name="description" content="Fature pelo menos 30k por mês vendendo os PRG's Produtos Rentáveis da Gringa">
+    <link rel="canonical" href="https://projeto30k.com.br/pvdirectsidao">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Projeto 30K">
+    <meta property="og:description" content="Fature pelo menos 30k por mês vendendo os PRG's Produtos Rentáveis da Gringa">
+    <meta property="og:url" content="https://projeto30k.com.br/pvdirectsidao">
+    <meta property="og:site_name" content="Projeto 30K">
+    <meta property="article:modified_time" content="2023-11-25T00:15:28+00:00">
+    <meta property="og:image" content="./assets/images/ordem-favicon-nova.webp">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:image:type" content="image/webp">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:label1" content="Est. tempo de leitura">
+    <meta name="twitter:data1" content="15 minutos">
+    <script type="application/ld+json" class="yoast-schema-graph">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebPage",
+            "@id": "https://comunidadeaordem.com.br/pv/",
+            "url": "https://comunidadeaordem.com.br/pv/",
+            "name": "Projeto 30K",
+            "isPartOf": { "@id": "https://comunidadeaordem.com.br/#website" },
+            "primaryImageOfPage": {
+              "@id": "https://comunidadeaordem.com.br/pv/#primaryimage"
+            },
+            "image": {
+              "@id": "https://comunidadeaordem.com.br/pv/#primaryimage"
+            },
+            "thumbnailUrl": "./assets/images/ordem-favicon-nova.webp",
+            "datePublished": "2023-09-01T12:24:29+00:00",
+            "dateModified": "2023-11-25T00:15:28+00:00",
+            "description": "Descubra agora a ÚNICA COISA que está te impedindo de crescer e como se livrar dela RAPIDAMENTE. Sem papinho de coach.",
+            "breadcrumb": {
+              "@id": "https://comunidadeaordem.com.br/pv/#breadcrumb"
+            },
+            "inLanguage": "pt-BR",
+            "potentialAction": [
+              {
+                "@type": "ReadAction",
+                "target": ["https://comunidadeaordem.com.br/pv/"]
+              }
+            ]
+          },
+          {
+            "@type": "ImageObject",
+            "inLanguage": "pt-BR",
+            "@id": "https://comunidadeaordem.com.br/pv/#primaryimage",
+            "url": "./assets/images/ordem-favicon-nova.webp",
+            "contentUrl": "./assets/images/ordem-favicon-nova.webp",
+            "width": 512,
+            "height": 512
+          },
+          {
+            "@type": "BreadcrumbList",
+            "@id": "https://comunidadeaordem.com.br/pv/#breadcrumb",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Início",
+                "item": "https://comunidadeaordem.com.br/"
+              },
+              { "@type": "ListItem", "position": 2, "name": "Inscreva-se" }
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://comunidadeaordem.com.br/#website",
+            "url": "https://comunidadeaordem.com.br/",
+            "name": "Projeto 30K",
+            "description": "Comunidade",
+            "potentialAction": [
+              {
+                "@type": "SearchAction",
+                "target": {
+                  "@type": "EntryPoint",
+                  "urlTemplate": "https://comunidadeaordem.com.br/?s={search_term_string}"
+                },
+                "query-input": "required name=search_term_string"
+              }
+            ],
+            "inLanguage": "pt-BR"
+          }
+        ]
+      }
+    </script>
+    <!-- / Yoast SEO plugin. -->
+
+    <link rel="alternate" type="application/rss+xml" title="Feed para Projeto 30K »" href="https://comunidadeaordem.com.br/feed/">
+    <link rel="alternate" type="application/rss+xml" title="Feed de comentários para Projeto 30K »" href="https://comunidadeaordem.com.br/comments/feed/">
+    <style id="wp-emoji-styles-inline-css"></style>
+
+    <style id="classic-theme-styles-inline-css"></style>
+    <style id="global-styles-inline-css"></style>
+
+    <style id="rocket-lazyload-inline-css">
+      .rll-youtube-player {
+        position: relative;
+        padding-bottom: 56.23%;
+        height: 0;
+        overflow: hidden;
+        max-width: 100%;
+      }
+      .rll-youtube-player:focus-within {
+        outline: 2px solid currentColor;
+        outline-offset: 5px;
+      }
+      .rll-youtube-player iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 100;
+        background: 0 0;
+      }
+      .rll-youtube-player img {
+        bottom: 0;
+        display: block;
+        left: 0;
+        margin: auto;
+        max-width: 100%;
+        width: 100%;
+        position: absolute;
+        right: 0;
+        top: 0;
+        border: none;
+        height: auto;
+        -webkit-transition: 0.4s all;
+        -moz-transition: 0.4s all;
+        transition: 0.4s all;
+      }
+      .rll-youtube-player img:hover {
+      -webkit-filter: brightness(75%);
+      }
+      .rll-youtube-player .play {
+        height: 100%;
+        width: 100%;
+        left: 0;
+        top: 0;
+        position: absolute;
+        background: var(--wpr-bg-9ad63aad-7f79-4a7b-8a60-0be546dc4b3d) no-repeat
+          center;
+        background-color: transparent !important;
+        cursor: pointer;
+        border: none;
+      }
+    </style>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js"></script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/js/jquery/jquery-migrate.min.js?ver=3.4.1" id="jquery-migrate-js"></script>
+    <link rel="https://api.w.org/" href="https://comunidadeaordem.com.br/wp-json/">
+    <link rel="alternate" type="application/json" href="https://comunidadeaordem.com.br/wp-json/wp/v2/pages/2493">
+    <link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://comunidadeaordem.com.br/xmlrpc.php?rsd">
+    <meta name="generator" content="WordPress 6.4.1">
+    <link rel="shortlink" href="https://comunidadeaordem.com.br/?p=2493">
+    <link rel="alternate" type="application/json+oembed" href="https://comunidadeaordem.com.br/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fcomunidadeaordem.com.br%2Fpv%2F">
+    <link rel="alternate" type="text/xml+oembed" href="https://comunidadeaordem.com.br/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fcomunidadeaordem.com.br%2Fpv%2F&format=xml">
+    <meta name="generator" content="Elementor 3.16.4; features: e_dom_optimization, e_optimized_assets_loading, e_font_icon_svg, additional_custom_breakpoints; settings: css_print_method-external, google_font-enabled, font_display-swap">
+    <link rel="preload" href="./assets/images/Gotham-Light-1.woff2" as="font" type="font/woff2" crossorigin="">
+    <link rel="preload" href="./assets/images/Gotham-Bold-1.woff2" as="font" type="font/woff2" crossorigin="">
+
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <script id="hotmart_launcher_script">
+      (function (l, a, u, n, c, h, e, r) {
+        l["HotmartLauncherObject"] = c;
+        (l[c] =
+          l[c] ||
+          function () {
+            (l[c].q = l[c].q || []).push(arguments);
+          }),
+          (l[c].l = 1 * new Date());
+        (h = a.createElement(u)), (e = a.getElementsByTagName(u)[0]);
+        h.async = 1;
+        h.src = n;
+        e.parentNode.insertBefore(h, e);
+      })(
+        window,
+        document,
+        "script",
+      );
+
+      hot("account", "5b93aab9-93d8-39d0-bd65-82511537e849");
+    </script>
+    <link rel="apple-touch-icon" href="./assets/images/ordem-favicon-nova-300x300.webp">
+    <meta name="msapplication-TileImage" content="./assets/images/ordem-favicon-nova-300x300.webp">
+    <noscript><style id="rocket-lazyload-nojs-css">
+        .rll-youtube-player,
+        [data-lazy-src] {
+          display: none !important;
+        }
+      </style></noscript>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <style id="wpr-lazyload-bg">:root{--wpr-bg-27955b0a-59ee-43a1-b00c-1afd85091b67: url('./assets/images/BG-MOBILE-ORDEM-NOVA-4.webp');}</style>
+    <style id="wpr-lazyload-bg-exclusion"></style>
+    <noscript>
+      <style id="wpr-lazyload-bg-nostyle">
+        :root {
+          --wpr-bg-db893844-5def-4ef4-8840-12566261438e: url("./assets/images/group-1.svg");
+        }
+        :root {
+          --wpr-bg-b0be6f1b-3654-47b0-a169-e7efc82d2791: url("./assets/images/calendar.svg");
+        }
+        :root {
+          --wpr-bg-264a67d7-9e3b-44cb-a40d-3c75d4c115d5: url("./assets/images/book.svg");
+        }
+        :root {
+          --wpr-bg-27955b0a-59ee-43a1-b00c-1afd85091b67: url("./assets/images/BG-MOBILE-ORDEM-NOVA-4.webp");
+        }
+        :root {
+          --wpr-bg-f59cb2a3-cb0d-4381-8fcb-05809ec6ab16: url("./assets/images/cerebro-ordem-3.webp");
+        }
+        :root {
+          --wpr-bg-623c214c-49b5-4aa6-a361-13b798c24aa0: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/img/flags.png");
+        }
+        :root {
+          --wpr-bg-b722fc5a-ba35-4f11-82e8-fbc4334cd2d7: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/img/flags@2x.png");
+        }
+        :root {
+          --wpr-bg-9ad63aad-7f79-4a7b-8a60-0be546dc4b3d: url("./assets/resources/plugins/wp-rocket/assets/img/youtube.png");
+        }
+      </style>
+    </noscript>
+    <script type="application/javascript">
+      const rocket_pairs = [
+        {
+          selector:
+            ".elementor-2493 .elementor-element.elementor-element-51172ee .elementor-image-box-title",
+          style:
+            ":root{--wpr-bg-db893844-5def-4ef4-8840-12566261438e: url('.\/assets\/images\/group-1.svg');}",
+          hash: "db893844-5def-4ef4-8840-12566261438e",
+        },
+        {
+          selector:
+            ".elementor-2493 .elementor-element.elementor-element-862ac7e .elementor-image-box-title",
+          style:
+            ":root{--wpr-bg-b0be6f1b-3654-47b0-a169-e7efc82d2791: url('.\/assets\/images\/calendar.svg');}",
+          hash: "b0be6f1b-3654-47b0-a169-e7efc82d2791",
+        },
+        {
+          selector:
+            ".elementor-2493 .elementor-element.elementor-element-fcc2e57 .elementor-image-box-title",
+          style:
+            ":root{--wpr-bg-264a67d7-9e3b-44cb-a40d-3c75d4c115d5: url('.\/assets\/images\/book.svg');}",
+          hash: "264a67d7-9e3b-44cb-a40d-3c75d4c115d5",
+        },
+        {
+          selector:
+            ".elementor-2493 .elementor-element.elementor-element-c808e51:not(.elementor-motion-effects-element-type-background),.elementor-2493 .elementor-element.elementor-element-c808e51>.elementor-motion-effects-container>.elementor-motion-effects-layer",
+          style:
+            ":root{--wpr-bg-27955b0a-59ee-43a1-b00c-1afd85091b67: url('.\/assets\/images\/BG-MOBILE-ORDEM-NOVA-4.webp');}",
+          hash: "27955b0a-59ee-43a1-b00c-1afd85091b67",
+        },
+        {
+          selector:
+            ".elementor-2493 .elementor-element.elementor-element-30eafef:not(.elementor-motion-effects-element-type-background),.elementor-2493 .elementor-element.elementor-element-30eafef>.elementor-motion-effects-container>.elementor-motion-effects-layer",
+          style:
+            ":root{--wpr-bg-f59cb2a3-cb0d-4381-8fcb-05809ec6ab16: url('.\/assets\/images\/cerebro-ordem-3.webp');}",
+          hash: "f59cb2a3-cb0d-4381-8fcb-05809ec6ab16",
+        },
+        {
+          selector: ".iti__flag",
+          style:
+            ":root{--wpr-bg-623c214c-49b5-4aa6-a361-13b798c24aa0: url('https:\/\/cdnjs.cloudflare.com\/ajax\/libs\/intl-tel-input\/17.0.8\/img\/flags.png');}",
+          hash: "623c214c-49b5-4aa6-a361-13b798c24aa0",
+        },
+        {
+          selector: ".iti__flag",
+          style:
+            ":root{--wpr-bg-b722fc5a-ba35-4f11-82e8-fbc4334cd2d7: url('https:\/\/cdnjs.cloudflare.com\/ajax\/libs\/intl-tel-input\/17.0.8\/img\/flags@2x.png');}",
+          hash: "b722fc5a-ba35-4f11-82e8-fbc4334cd2d7",
+        },
+        {
+          selector: ".rll-youtube-player .play",
+          style:
+            ":root{--wpr-bg-9ad63aad-7f79-4a7b-8a60-0be546dc4b3d: url('.\/assets\/resources\/plugins\/wp-rocket\/assets\/img\/youtube.png');}",
+          hash: "9ad63aad-7f79-4a7b-8a60-0be546dc4b3d",
+        },
+      ];
+      const rocket_excluded_pairs = [];
+    </script>
+
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+        <!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '648896747181267');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=648896747181267&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+
+<script src="js/latest.js" async="" defer=""></script>
+
+    <link rel="preload" href="https://scripts.converteai.net/36124149-fb5f-4577-852d-90288afff251/players/668d772843e0d5000a99d3ff/player.js" as="script">
+    <link rel="preload" href="https://images.converteai.net/36124149-fb5f-4577-852d-90288afff251/players/668d772843e0d5000a99d3ff/thumbnail.jpg" as="image">
+    <link rel="preload" href="https://cdn.converteai.net/36124149-fb5f-4577-852d-90288afff251/668d772843e0d5000a99d3ff/main.m3u8" as="fetch">
+    <link rel="dns-prefetch" href="https://cdn.converteai.net">
+    <link rel="dns-prefetch" href="https://scripts.converteai.net">
+    <link rel="dns-prefetch" href="https://images.converteai.net">
+    <link rel="dns-prefetch" href="https://api.vturb.com.br">
+
+    <style type="text/css">
+
+        .gradiente-1{
+            background: linear-gradient(to bottom, #05de6e 0%, #05de6e 0%, #000 190%, #000 20%);
+            border: none !important;
+        }
+
+        .elementor-2493 .elementor-element.elementor-element-4abf61f .elementor-image-box-title::before{
+            content: "";
+        }
+
+        .elementor-2493 .elementor-element.elementor-element-fac2021 .elementor-image-box-title::before{
+            content: "";
+        }
+
+        .elementor-2493 .elementor-element.elementor-element-aed9703 .elementor-image-box-title::before{
+            content: "";
+        }
+
+        .elementor-2493 .elementor-element.elementor-element-862ac7e .elementor-image-box-title::before{
+            background: none;
+            display: none;
+        }
+
+        .elementor-2493 .elementor-element.elementor-element-51172ee .elementor-image-box-title::before{
+            background: none;
+            display: none;
+        }
+
+        .elementor-2493 .elementor-element.elementor-element-fcc2e57 .elementor-image-box-title::before{
+            background: none;
+            display: none;           
+        }
+
+        .elementor-2493 .elementor-element.elementor-element-862ac7e .elementor-image-box-title{
+            padding-left: 0;
+        }
+
+        .elementor-2493 .elementor-element.elementor-element-51172ee .elementor-image-box-title{
+            padding-left: 0;
+        }
+
+        .elementor-2493 .elementor-element.elementor-element-fcc2e57 .elementor-image-box-title{
+            padding-left: 0;
+        }
+
+    </style>
+
+<link rel="stylesheet" href="css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+<style type="text/css">
+
+.elementor-2493 .elementor-element.elementor-element-2d9918c::before {
+    left: 0;
+    height: 135px;
+}
+
+.elementor-2493 .elementor-element.elementor-element-2d9918c::after {
+    right: -6px;
+    height: 135px;
+}
+
+.elementor-2493 .elementor-element.elementor-element-08bda44 .elementor-image-box-title::before{
+  content: "";
+    width: 6px;
+    position: absolute;
+    left: -2px;
+    top: 25%;
+    background: #05de6e;
+    border-radius: 99px;
+    z-index: 2;
+    height: 50%;
+}
+
+.elementor-2493 .elementor-element.elementor-element-6f19c59::after{
+  border: none;
+}
+
+.elementor-2493 .elementor-element.elementor-element-8d97bfa .elementor-image-box-title{
+  border-bottom: 2px solid white;
+    padding-bottom: 10px;
+    font-size: 1.9em;
+}
+
+@media (max-width: 767px){
+.elementor-2493 .elementor-element.elementor-element-bfb79d7 sv:first-child, .elementor-2493 .elementor-element.elementor-element-bfb79d7 sv:last-child {
+    display: block;
+    padding-top: 45px;
+    font-size: 0.5em;
+}
+
+.blocoProvaSocial img{
+  width: 100% !important;
+    margin-left: 0 !important;
+}
+
+</style>
+
+  <script src="js/player.js" async=""></script></head>
+  <body data-rsssl="1" class="page-template page-template-elementor_canvas page page-id-2493 e-lazyload elementor-default elementor-template-canvas elementor-kit-5 elementor-page elementor-page-2493">
+    <div data-elementor-type="wp-page" data-elementor-id="2493" class="elementor elementor-2493" data-elementor-post-type="page">
+      <p class="top-strip">Apresentação disponível até o dia <b></b></p>
+
+      <div class="elementor-element elementor-element-c808e51 principal e-flex e-con-boxed e-con e-parent" data-id="c808e51" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" data-e-bg-lazyload="" data-core-v316-plus="true" data-rocket-lazy-bg-27955b0a-59ee-43a1-b00c-1afd85091b67="loaded">
+        <div class="e-con-inner">
+          <div class="elementor-element elementor-element-bb76d57 elementor-widget__width-initial elementor-widget elementor-widget-html" data-id="bb76d57" data-element_type="widget" data-widget_type="html.default">
+            <div class="elementor-widget-container">
+              <script type="rocketlazyloadscript" data-minify="1" data-rocket-src="resources/cache/min/1/ajax/libs/mobile-detect/1.4.3/mobile-detect.min.js?ver=1701213924"></script>
+              <script type="rocketlazyloadscript" data-minify="1" data-rocket-src="resources/cache/min/1/ajax/libs/three.js/r72/three.min.js?ver=1701213924"></script>
+              <script type="rocketlazyloadscript" data-minify="1" data-rocket-src="resources/cache/min/1/ajax/libs/jquery/2.2.4/jquery.min.js?ver=1701213924"></script>
+            </div>
+          </div>
+
+          <div class="elementor-element elementor-element-32111cc elementor-widget__width-initial video elementor-widget elementor-widget-html" data-id="32111cc" data-element_type="widget" data-widget_type="html.default">
+            <div class="elementor-widget-container">
+              <div id="vid_668d772843e0d5000a99d3ff" style="position: relative; width: 100%; padding: 56.25% 0 0">
+                <img id="thumb_668d772843e0d5000a99d3ff" src="images/thumbnail.jpg" style="
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: block;
+                  ">
+                <div id="backdrop_668d772843e0d5000a99d3ff" style="
+                    position: absolute;
+                    top: 0;
+                    width: 100%;
+                    height: 100%;
+                    -webkit-backdrop-filter: blur(5px);
+                    backdrop-filter: blur(5px);
+                  "></div>
+              </div>
+              <script type="text/javascript" id="scr_668d772843e0d5000a99d3ff">
+                var s = document.createElement("script");
+                (s.src =
+                https://pay.kuenha.com/cc23c110-2eea-4ced-88f5-9d1316ee7d9f"),
+                  (s.async = !0),
+                  document.head.appendChild(s);
+              </script>
+              <h3 class="viewers"><b></b> pessoas estão assistindo agora...</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- com delay -->
+      <div class="esconder elementor-element elementor-element-0e8a230 e-flex e-con-boxed e-con e-parent" data-id="0e8a230" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" data-core-v316-plus="true">
+        <div class="e-con-inner">
+          <div class="elementor-element elementor-element-305dc14 elementor-widget elementor-widget-heading" data-id="305dc14" data-element_type="widget" data-widget_type="heading.default" style="width: 100%;">
+            <div class="elementor-widget-container">
+              
+              <div style="width: 100%; text-align: center; float: left;">
+            
+                <img src="images/logo-transp.png" style="width: 200px;">
+              
+              </div>
+
+            </div>
+
+          </div>
+          <div class="wave-border">
+
+            <div style="height: 2px; width: 100%; float: left; background-color: #f2f2f2;"></div>
+
+            <div class="elementor-element elementor-element-7cc47ac elementor-widget__width-initial elementor-widget elementor-widget-image-box" data-id="7cc47ac" data-element_type="widget" data-widget_type="image-box.default">
+              <div class="elementor-widget-container" style="border:none;">
+                <div class="elementor-image-box-wrapper">
+                  <div class="elementor-image-box-content">
+                    <h2 class="elementor-image-box-title">
+                      Por que você não consegue crescer financeiramente???
+                    </h2>
+                    <p class="elementor-image-box-description">
+                      Porque provavelmente VOCÊ insiste em vender sua hora e
+                      trabalhar no mercado tradicional.. Enquanto muitas pessoas
+                      enriquecerem rapidamente depois que descobrem o caminho
+                      das pedras do mercado digital, e é esse caminho que vou te
+                      mostrar dentro do Projeto 30K.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="height: 2px; width: 100%; float: left; background-color: #f2f2f2; "></div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- com delay -->
+      <div class="esconder elementor-element elementor-element-ccc234b e-flex e-con-boxed e-con e-parent" data-id="ccc234b" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" data-core-v316-plus="true">
+        <div class="e-con-inner">
+          <div class="elementor-element elementor-element-822f294 elementor-widget__width-initial elementor-widget elementor-widget-heading" data-id="822f294" data-element_type="widget" data-widget_type="heading.default">
+            <div class="elementor-widget-container">
+              <h2 class="elementor-heading-title elementor-size-default">
+                <causa><sem>O que causa isso em você</sem> são as crenças limitantes
+                  que
+                </causa>
+                <rec>implatam na nossa mente desde quando nascemos.</rec>
+              </h2>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-30eafef e-con-full e-flex e-con e-child" data-id="30eafef" data-element_type="container" data-settings="{" content_width":"full","background_background":"classic","container_type":"flex"}"="" data-e-bg-lazyload="">
+            <div class="elementor-element elementor-element-9142a64 elementor-headline--style-highlight elementor-widget elementor-widget-animated-headline" data-id="9142a64" data-element_type="widget" data-settings="{" highlighted_text":"redes="" sociais","headline_style":"highlight","marker":"circle","highlight_animation_duration":1200}"="" data-widget_type="animated-headline.default">
+              <div class="elementor-widget-container" style="display: block;">
+                <h2 class="elementor-headline">
+                  <span class="elementor-headline-dynamic-wrapper elementor-headline-text-wrapper">
+                    <span class="elementor-headline-dynamic-text elementor-headline-text-active">Família</span>
+                  </span>
+                </h2>
+              </div>
+            </div>
+            <div class="elementor-element elementor-element-eb6ce29 elementor-headline--style-highlight elementor-widget elementor-widget-animated-headline" data-id="eb6ce29" data-element_type="widget" data-settings="{" highlighted_text":"sites","headline_style":"highlight","marker":"circle","highlight_animation_duration":1200}"="" data-widget_type="animated-headline.default">
+              <div class="elementor-widget-container" style="display: block;">
+                <h2 class="elementor-headline">
+                  <span class="elementor-headline-dynamic-wrapper elementor-headline-text-wrapper">
+                    <span class="elementor-headline-dynamic-text elementor-headline-text-active">Sociedade</span>
+                  </span>
+                </h2>
+              </div>
+            </div>
+            <div class="elementor-element elementor-element-65f3583 elementor-headline--style-highlight elementor-widget elementor-widget-animated-headline" data-id="65f3583" data-element_type="widget" data-settings="{" highlighted_text":"m\u00eddia="" em="" geral","headline_style":"highlight","marker":"circle","highlight_animation_duration":1200}"="" data-widget_type="animated-headline.default">
+              <div class="elementor-widget-container" style="display: block;">
+                <h2 class="elementor-headline">
+                  <span class="elementor-headline-dynamic-wrapper elementor-headline-text-wrapper">
+                    <span class="elementor-headline-dynamic-text elementor-headline-text-active">Governo</span>
+                  </span>
+                </h2>
+              </div>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-ea0822c elementor-widget__width-initial elementor-widget elementor-widget-heading" data-id="ea0822c" data-element_type="widget" data-widget_type="heading.default">
+            <div class="elementor-widget-container">
+              <h2 class="elementor-heading-title elementor-size-default">
+                Tudo isso ao nosso redor programa o nosso cerebro para ser
+                apenas mais 1 trabalhador na linha de produção convencional.
+              </h2>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- com delay -->
+      <div class="esconder elementor-element elementor-element-3f3f5b4 e-flex e-con-boxed e-con e-parent" data-id="3f3f5b4" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" data-core-v316-plus="true">
+        <div class="e-con-inner">
+          <div class="elementor-element elementor-element-2d9918c e-flex e-con-boxed e-con e-child" data-id="2d9918c" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" style="border-radius: 20px">
+            <div class="e-con-inner">
+              <div class="elementor-element elementor-element-f8a358c elementor-widget__width-initial elementor-widget elementor-widget-heading" data-id="f8a358c" data-element_type="widget" data-widget_type="heading.default">
+                <div class="elementor-widget-container">
+                  <h2 class="elementor-heading-title elementor-size-default">
+                    Agora chegou a hora de você de se libertar do sistema, sair
+                    da manada, abandonar a mediocridade. <br>O poder da era
+                    digital é o que pode acabar de vez com a escassez na sua
+                    vida e te fazer prosperar, <br>
+                    atingir suas metas, desfrutar de bons relacionamentos,
+                    ganhar muita grana e ainda <br>viver as
+                    <ex>EXPERIÊNCIAS</ex> que você sempre desejou.
+                  </h2>
+                </div>
+              </div>
+              <div class="elementor-element elementor-element-6b27937 elementor-align-justify elementor-mobile-align-justify elementor-widget-mobile__width-initial elementor-widget__width-initial elementor-tablet-align-justify elementor-widget elementor-widget-button" data-id="6b27937" data-element_type="widget" data-widget_type="button.default">
+                <div class="elementor-widget-container">
+                  <div class="elementor-button-wrapper">
+                    <a href="https://pay.kuenha.com/cc23c110-2eea-4ced-88f5-9d1316ee7d9f" target="_blank" class="custom-btn-buy elementor-button elementor-size-sm" role="button">
+                      <span class="elementor-button-content-wrapper">
+                        <span class="elementor-button-text">Quero Entrar pro Projeto 30K</span>
+                      </span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- com delay -->
+      <div class="esconder elementor-element elementor-element-d36a819 e-flex e-con-boxed e-con e-parent" data-id="d36a819" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" data-core-v316-plus="true">
+        <div class="e-con-inner">
+          <div class="elementor-element elementor-element-840e304 elementor-widget__width-initial elementor-widget elementor-widget-image" data-id="840e304" data-element_type="widget" data-widget_type="image.default">
+            <div class="elementor-widget-container">
+              <img decoding="async" width="1148" height="229" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201148%20229'%3E%3C/svg%3E" class="attachment-full size-full wp-image-4005" alt="" data-lazy-srcset="./assets/images/logo-ordem-traco-2.webp 1148w, ./assets/images/logo-ordem-traco-2-300x60.webp 300w, ./assets/images/logo-ordem-traco-2-1024x204.webp 1024w, ./assets/images/logo-ordem-traco-2-768x153.webp 768w" data-lazy-sizes="(max-width: 1148px) 100vw, 1148px" data-lazy-src="./assets/images/logo-ordem-traco-2.webp"><noscript><img
+                  decoding="async"
+                  width="1148"
+                  height="229"
+                  src="images/image-ordem-mockup-1.webp"
+                  class="attachment-full size-full wp-image-4005"
+                  alt=""
+                  srcset="
+                    images/logo-ordem-traco-2.webp          1148w,
+                    images/logo-ordem-traco-2-300x60.webp    300w,
+                    images/logo-ordem-traco-2-1024x204.webp 1024w,
+                    images/logo-ordem-traco-2-768x153.webp   768w
+                  "
+                  sizes="(max-width: 1148px) 100vw, 1148px"
+              /></noscript>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-4f79b03 elementor-widget__width-initial elementor-widget elementor-widget-image-box" data-id="4f79b03" data-element_type="widget" data-widget_type="image-box.default">
+            <div class="elementor-widget-container">
+              <div class="elementor-image-box-wrapper">
+                <div class="elementor-image-box-content">
+                  <h2 class="elementor-image-box-title">
+                    Você irá experimentar o
+                    <destaque>PODER DA RIQUEZA</destaque>
+                  </h2>
+                  <p class="elementor-image-box-description">
+                    <sem>Vender em dólar na internet </sem> <br>é o que
+                    literalmente qualquer pessoa que queira ter resultados
+                    rápidos <br>precisa fazer. Através desse mercado você irá
+                    experimentar o lado gostoso da vida.<br>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- com delay -->
+      <div class="esconder elementor-element elementor-element-bad497f e-flex e-con-boxed e-con e-parent" data-id="bad497f" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" data-core-v316-plus="true">
+        <div class="e-con-inner">
+          <div class="elementor-element elementor-element-4abf61f elementor-widget__width-initial pontos elementor-widget elementor-widget-image-box" data-id="4abf61f" data-element_type="widget" data-widget_type="image-box.default">
+            <div class="elementor-widget-container gradiente-1">
+              <div class="elementor-image-box-wrapper">
+                <div class="elementor-image-box-content">
+                  
+                  <h3 class="elementor-image-box-title" style="border-bottom: none; padding-bottom: 0; font-size: 2em;">
+                    <i class="fa fa-plane" style="font-size: 1em; color: white;"></i>  
+                    Viagens</h3>
+                  <p class="elementor-image-box-description" style="text-align: center; font-size: 1.2em;">
+                    Poder realizar seus maiores sonhos de conhecer qualquer
+                    lugar do mundo, sem precisar se preocupar com o quanto você
+                    irá gastar. E ainda ter condições de levar junto com você as
+                    pessoas que você ama e ver a felicidade estampada no rosto
+                    delas.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-fac2021 elementor-widget__width-initial pontos elementor-widget elementor-widget-image-box" data-id="fac2021" data-element_type="widget" data-widget_type="image-box.default">
+            <div class="elementor-widget-container gradiente-1">
+              <div class="elementor-image-box-wrapper">
+                <div class="elementor-image-box-content">
+                  <h3 class="elementor-image-box-title" style="border-bottom: none; padding-bottom: 0; font-size: 2em;">
+                    <i class="fa fa-handshake" style="font-size: 1em; color: white;"></i>  
+                    Respeito</h3>
+                  <p class="elementor-image-box-description" style="text-align: center; font-size: 1.2em;">
+                    Você vai entender e começar a ver como as pessoas te olham
+                    diferente quando você tem resultados. Todo o potencial que
+                    já existe dentro de você, agora vai ficar visível e isso vai
+                    começar a impressionar todos ao seu redor e até você mesmo.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-aed9703 elementor-widget__width-initial pontos elementor-widget elementor-widget-image-box" data-id="aed9703" data-element_type="widget" data-widget_type="image-box.default">
+            <div class="elementor-widget-container gradiente-1">
+              <div class="elementor-image-box-wrapper">
+                <div class="elementor-image-box-content">
+                  <h3 class="elementor-image-box-title" style="border-bottom: none; padding-bottom: 0; font-size: 2em;">
+                    <i class="fa fa-globe" style="font-size: 1em; color: white;"></i>  
+                    Liberdade</h3>
+                  <p class="elementor-image-box-description" style="text-align: center; font-size: 1.2em;">
+                    Você vai sentir o quão prazeroso é, ter poder de escolha.
+                    Agora não tem mais chefe, é você que dita as regras da sua
+                    vida. Não importa se é quarta-feira ou sábado, você se torna
+                    o dono dos seus dias e não deve satisfação pra ninguém.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- com delay -->
+      <div class="esconder elementor-element elementor-element-8c128a8 e-flex e-con-boxed e-con e-parent" data-id="8c128a8" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" data-core-v316-plus="true">
+        <div class="e-con-inner">
+          <div class="elementor-element elementor-element-3ad7e3a elementor-widget__width-initial elementor-widget elementor-widget-image" data-id="3ad7e3a" data-element_type="widget" data-widget_type="image.default">
+            <div class="elementor-widget-container">
+              <img decoding="async" width="513" height="548" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20513%20548'%3E%3C/svg%3E" class="attachment-full size-full wp-image-5184" alt="" data-lazy-srcset="images/image-ordem-mockup-1.webp 513w, images/image-ordem-mockup-1-281x300.webp 281w" data-lazy-sizes="(max-width: 513px) 100vw, 513px" data-lazy-src="images/image-ordem-mockup-1.webp"><noscript><img
+                  decoding="async"
+                  width="513"
+                  height="548"
+                  src="images/image-ordem-mockup-1.webp"
+                  class="attachment-full size-full wp-image-5184"
+                  alt=""
+                  srcset="
+                    images/image-ordem-mockup-1.webp         513w,
+                    images/image-ordem-mockup-1-281x300.webp 281w
+                  "
+                  sizes="(max-width: 513px) 100vw, 513px"
+              /></noscript>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-4d671df e-con-full e-flex e-con e-child" data-id="4d671df" data-element_type="container" data-settings="{" content_width":"full","container_type":"flex"}"="">
+            <div class="elementor-element elementor-element-3201c08 elementor-widget__width-initial elementor-widget elementor-widget-image-box" data-id="3201c08" data-element_type="widget" data-widget_type="image-box.default">
+              <div class="elementor-widget-container">
+                <div class="elementor-image-box-wrapper">
+                  <div class="elementor-image-box-content">
+                    <h2 class="elementor-image-box-title">
+                      Por você eu criei o <com>PROJETO 30K</com>
+                    </h2>
+                    <p class="elementor-image-box-description">
+                      O Projeto 30K é uma comunidade de pessoas que querem mais
+                      da vida, pessoas que buscam alcançar os objetivos, pessoas
+                      que vivem as experiências que sempre desejaram, usando o
+                      poder das vendas online em DÓLAR.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="elementor-element elementor-element-3a62c08 elementor-align-justify elementor-mobile-align-justify elementor-widget-mobile__width-initial elementor-widget__width-initial elementor-widget elementor-widget-button" data-id="3a62c08" data-element_type="widget" data-widget_type="button.default">
+              <div class="elementor-widget-container">
+                <div class="elementor-button-wrapper">
+                  <a href="https://pay.kuenha.com/cc23c110-2eea-4ced-88f5-9d1316ee7d9f" target="_blank" class="custom-btn-buy elementor-button elementor-size-sm" role="button">
+                    <span class="elementor-button-content-wrapper">
+                      <span class="elementor-button-text">Quero Entrar pro Projeto 30K</span>
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-7a03b4e e-flex e-con-boxed e-con e-child gradiente-1" data-id="7a03b4e" data-element_type="container" data-settings="{" container_type":"flex","content_width":"boxed"}"="">
+            <div class="e-con-inner">
+              <div class="elementor-element elementor-element-7b96e07 elementor-widget__width-initial elementor-widget elementor-widget-image" data-id="7b96e07" data-element_type="widget" data-widget_type="image.default">
+              </div>
+              <div class="elementor-element elementor-element-bfb79d7 elementor-widget__width-initial elementor-widget elementor-widget-heading" data-id="bfb79d7" data-element_type="widget" data-widget_type="heading.default">
+                <div class="elementor-widget-container">
+                  <h2 class="elementor-heading-title elementor-size-default">
+                    <sv style="text-align: center;"><span style="color: #ffffff; letter-spacing: 0px">eu sei que você</span></sv>
+                  </h2>
+                </div>
+              </div>
+              <div class="elementor-element elementor-element-96859ca elementor-widget__width-initial elementor-icon-list--layout-traditional elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-id="96859ca" data-element_type="widget" data-widget_type="icon-list.default">
+                <div class="elementor-widget-container">
+                  <ul class="elementor-icon-list-items">
+                    <li class="elementor-icon-list-item">
+                      <span class="elementor-icon-list-icon">
+                        <svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="fill: #ffffff;">
+                          <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+                        </svg>
+                      </span>
+                      <span class="elementor-icon-list-text" style="font-weight: bold;">Quer ter uma vida sem limitações</span>
+                    </li>
+                    <li class="elementor-icon-list-item">
+                      <span class="elementor-icon-list-icon">
+                        <svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="fill: #ffffff;">
+                          <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+                        </svg>
+                      </span>
+                      <span class="elementor-icon-list-text" style="font-weight: bold;">Deseja ter dinheiro suficiente pra comprar uma casa
+                        incrível e o carro que sempre sonhou</span>
+                    </li>
+                    <li class="elementor-icon-list-item">
+                      <span class="elementor-icon-list-icon">
+                        <svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="fill: #ffffff;">
+                          <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+                        </svg>
+                      </span>
+                      <span class="elementor-icon-list-text" style="font-weight: bold;">Quer honrar todas as pessoas que estiveram ao seu lado
+                        nos momentos difíceis</span>
+                    </li>
+                    <li class="elementor-icon-list-item">
+                      <span class="elementor-icon-list-icon">
+                        <svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="fill: #ffffff;">
+                          <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+                        </svg>
+                      </span>
+                      <span class="elementor-icon-list-text" style="font-weight: bold;">Não quer mais se sentir fraco e incapaz de conquistar o
+                        que deseja</span>
+                    </li>
+                    <li class="elementor-icon-list-item">
+                      <span class="elementor-icon-list-icon">
+                        <svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="fill: #ffffff;">
+                          <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+                        </svg>
+                      </span>
+                      <span class="elementor-icon-list-text" style="font-weight: bold;">Quer parar de ficar se comparando com seus conhecidos
+                        que tem mais resultado que você</span>
+                    </li>
+                    <li class="elementor-icon-list-item">
+                      <span class="elementor-icon-list-icon">
+                        <svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="fill: #ffffff;">
+                          <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+                        </svg>
+                      </span>
+                      <span class="elementor-icon-list-text" style="font-weight: bold;">Quer se tornar uma refêrencia para as pessoas próximas
+                        de você</span>
+                    </li>
+                    <li class="elementor-icon-list-item">
+                      <span class="elementor-icon-list-icon">
+                        <svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="fill: #ffffff;">
+                          <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+                        </svg>
+                      </span>
+                      <span class="elementor-icon-list-text" style="font-weight: bold;">Quer ter mais sucesso, conquistas e se tornar alguém de
+                        que as pessoas tem prazer de estarem perto... </span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-b00ff53 elementor-widget__width-initial elementor-widget elementor-widget-heading" data-id="b00ff53" data-element_type="widget" data-widget_type="heading.default">
+            <div class="elementor-widget-container" style="border: none; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 4px solid #05de6e;">
+              <h2 class="elementor-heading-title elementor-size-default">
+                SEU LUGAR É DENTRO DO PROJETO 30K
+              </h2>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- com delay -->
+      <div class="esconder elementor-element elementor-element-129183c e-flex e-con-boxed e-con e-parent" data-id="129183c" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" data-core-v316-plus="true">
+        <div class="e-con-inner">
+          <div class="elementor-element elementor-element-34a8934 elementor-widget__width-initial elementor-widget elementor-widget-image-box" data-id="34a8934" data-element_type="widget" data-widget_type="image-box.default">
+            <div class="elementor-widget-container">
+              <div class="elementor-image-box-wrapper">
+                <div class="elementor-image-box-content">
+                  <h2 class="elementor-image-box-title">
+                    O Projeto 30K <u>não</u> é um curso
+                  </h2>
+                  <p class="elementor-image-box-description">
+                    O Projeto 30K é uma missão de vida! Eu decidi que todas as
+                    pessoas que tiverem acesso à mim e quiserem ter uma
+                    transformação financeira eu iria ajudar. Então se você está
+                    aqui hoje, saiba que do que depender de mim você vai
+                    realizar os seus sonhos através das vendas em Dólar. A
+                    partir de hoje, você será membro de uma comunidade que se
+                    ajuda e que troca experiências para o bem comum e o sucesso
+                    de todos.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- com delay -->
+      <div class="esconder elementor-element elementor-element-6aae269 e-flex e-con-boxed e-con e-parent" data-id="6aae269" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" data-e-bg-lazyload="" data-core-v316-plus="true">
+        <div class="e-con-inner">
+          <div class="elementor-element elementor-element-025a74f elementor-widget__width-initial elementor-position-top elementor-widget elementor-widget-image-box" data-id="025a74f" data-element_type="widget" data-widget_type="image-box.default">
+            <div class="elementor-widget-container">
+              <div class="elementor-image-box-wrapper">
+                <figure class="elementor-image-box-img">
+                  <img decoding="async" width="36" height="152" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2036%20152'%3E%3C/svg%3E" class="attachment-full size-full wp-image-3210" alt="" data-lazy-src="images/icone-down-1.webp"><noscript><img
+                      decoding="async"
+                      width="36"
+                      height="152"
+                      src="images/icone-down-1.webp"
+                      class="attachment-full size-full wp-image-3210"
+                      alt=""
+                  /></noscript>
+                </figure>
+              </div>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-245dc49 e-flex e-con-boxed e-con e-child" data-id="245dc49" data-element_type="container" data-settings="{" container_type":"flex","content_width":"boxed"}"="">
+            <div class="e-con-inner">
+              <div class="elementor-element elementor-element-51172ee elementor-widget__width-initial card-mob bullet pontos elementor-position-top elementor-widget elementor-widget-image-box" data-id="51172ee" data-element_type="widget" data-widget_type="image-box.default">
+                <div class="elementor-widget-container">
+                  <div class="elementor-image-box-wrapper">
+                    <figure class="elementor-image-box-img">
+                      <img decoding="async" width="934" height="479" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20934%20479'%3E%3C/svg%3E" class="attachment-full size-full wp-image-5383" alt="" data-lazy-srcset="images/img-comunidade-ordem.webp 934w, images/img-comunidade-ordem-300x154.webp 300w, images/img-comunidade-ordem-768x394.webp 768w" data-lazy-sizes="(max-width: 934px) 100vw, 934px" data-lazy-src="images/img-comunidade-ordem.webp"><noscript><img
+                          decoding="async"
+                          width="934"
+                          height="479"
+                          src="images/img-comunidade-ordem.webp"
+                          class="attachment-full size-full wp-image-5383"
+                          alt=""
+                          srcset="
+                            images/img-comunidade-ordem.webp         934w,
+                            images/img-comunidade-ordem-300x154.webp 300w,
+                            images/img-comunidade-ordem-768x394.webp 768w
+                          "
+                          sizes="(max-width: 934px) 100vw, 934px"
+                      /></noscript>
+                    </figure>
+                    <div class="elementor-image-box-content">
+                      <h2 class="elementor-image-box-title"><i class="fa-regular fa-window-restore"></i>   Acesso ao PROJETO 30K</h2>
+                      <p class="elementor-image-box-description">
+                        Descubra como é fazer parte de uma comunidade onde todos
+                        estão alinhados com o mesmo objetivo: Vencer através do
+                        mercado de vendas online em DÓLAR. Já somos milhares de
+                        pessoas e VOCÊ é o próximo a se juntar e vivenciar tudo
+                        que tem lá dentro.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="elementor-element elementor-element-b1e76b8 elementor-widget__width-initial time elementor-hidden-mobile elementor-widget elementor-widget-image" data-id="b1e76b8" data-element_type="widget" data-widget_type="image.default">
+                <div class="elementor-widget-container">
+                  <img decoding="async" width="934" height="479" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20934%20479'%3E%3C/svg%3E" class="attachment-full size-full wp-image-5383" alt="" data-lazy-srcset="images/img-comunidade-ordem.webp 934w, images/img-comunidade-ordem-300x154.webp 300w, images/img-comunidade-ordem-768x394.webp 768w" data-lazy-sizes="(max-width: 934px) 100vw, 934px" data-lazy-src="images/img-comunidade-ordem.webp"><noscript><img
+                      decoding="async"
+                      width="934"
+                      height="479"
+                      src="images/img-comunidade-ordem.webp"
+                      class="attachment-full size-full wp-image-5383"
+                      alt=""
+                      srcset="
+                        images/img-comunidade-ordem.webp         934w,
+                        images/img-comunidade-ordem-300x154.webp 300w,
+                        images/img-comunidade-ordem-768x394.webp 768w
+                      "
+                      sizes="(max-width: 934px) 100vw, 934px"
+                  /></noscript>
+                </div>
+              </div>
+              <div class="elementor-element elementor-element-862ac7e elementor-widget__width-initial card-mob bullet pontos elementor-position-top elementor-widget elementor-widget-image-box" data-id="862ac7e" data-element_type="widget" data-widget_type="image-box.default">
+                <div class="elementor-widget-container" style="margin-right: 0;">
+                  <div class="elementor-image-box-wrapper">
+                    <figure class="elementor-image-box-img">
+                      <img decoding="async" width="934" height="479" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20934%20479'%3E%3C/svg%3E" class="attachment-full size-full wp-image-5386" alt="" data-lazy-srcset="images/img-aulas-ordem-1.webp 934w, images/img-aulas-ordem-1-300x154.webp 300w, images/img-aulas-ordem-1-768x394.webp 768w" data-lazy-sizes="(max-width: 934px) 100vw, 934px" data-lazy-src="images/img-aulas-ordem-1.webp"><noscript><img
+                          decoding="async"
+                          width="934"
+                          height="479"
+                          src="images/img-aulas-ordem-1.webp"
+                          class="attachment-full size-full wp-image-5386"
+                          alt=""
+                          srcset="
+                            images/img-aulas-ordem-1.webp         934w,
+                            images/img-aulas-ordem-1-300x154.webp 300w,
+                            images/img-aulas-ordem-1-768x394.webp 768w
+                          "
+                          sizes="(max-width: 934px) 100vw, 934px"
+                      /></noscript>
+                    </figure>
+                    <div class="elementor-image-box-content">
+                      <h2 class="elementor-image-box-title"><i class="fa-solid fa-chalkboard-user"></i>   Aulas Didáticas</h2>
+                      <p class="elementor-image-box-description">
+                        Você terá acesso a um conteúdo totalmente prático, sem
+                        enrolação, com um passo a passo detalhadinho pra você só
+                        executar. Em poucos dias após executar o que ensino,
+                        você vai fazer suas primeiras vendas em dólar.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="elementor-element elementor-element-c7e1224 elementor-widget__width-initial time elementor-hidden-mobile elementor-widget elementor-widget-image" data-id="c7e1224" data-element_type="widget" data-widget_type="image.default">
+              <div class="elementor-widget-container">
+                <img decoding="async" width="934" height="479" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20934%20479'%3E%3C/svg%3E" class="attachment-full size-full wp-image-5386" alt="" data-lazy-srcset="images/img-aulas-ordem-1.webp 934w, images/img-aulas-ordem-1-300x154.webp 300w, images/img-aulas-ordem-1-768x394.webp 768w" data-lazy-sizes="(max-width: 934px) 100vw, 934px" data-lazy-src="images/img-aulas-ordem-1.webp"><noscript><img
+                    decoding="async"
+                    width="934"
+                    height="479"
+                    src="images/img-aulas-ordem-1.webp"
+                    class="attachment-full size-full wp-image-5386"
+                    alt=""
+                    srcset="
+                      images/img-aulas-ordem-1.webp         934w,
+                      images/img-aulas-ordem-1-300x154.webp 300w,
+                      images/img-aulas-ordem-1-768x394.webp 768w
+                    "
+                    sizes="(max-width: 934px) 100vw, 934px"
+                /></noscript>
+              </div>
+            </div>
+              <div class="elementor-element elementor-element-fcc2e57 elementor-widget__width-initial card-mob bullet pontos elementor-position-top elementor-widget elementor-widget-image-box" data-id="fcc2e57" data-element_type="widget" data-widget_type="image-box.default">
+                <div class="elementor-widget-container">
+                  <div class="elementor-image-box-wrapper">
+                    <figure class="elementor-image-box-img">
+                      <img decoding="async" width="934" height="479" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20934%20479'%3E%3C/svg%3E" class="attachment-full size-full wp-image-5385" alt="" data-lazy-srcset="images/img-livros-ordem.webp 934w, images/img-livros-ordem-300x154.webp 300w, images/img-livros-ordem-768x394.webp 768w" data-lazy-sizes="(max-width: 934px) 100vw, 934px" data-lazy-src="images/img-livros-ordem.webp"><noscript><img
+                          decoding="async"
+                          width="934"
+                          height="479"
+                          src="images/img-livros-ordem.webp"
+                          class="attachment-full size-full wp-image-5385"
+                          alt=""
+                          srcset="
+                            images/img-livros-ordem.webp         934w,
+                            images/img-livros-ordem-300x154.webp 300w,
+                            images/img-livros-ordem-768x394.webp 768w
+                          "
+                          sizes="(max-width: 934px) 100vw, 934px"
+                      /></noscript>
+                    </figure>
+                    <div class="elementor-image-box-content">
+                      <h2 class="elementor-image-box-title"><i class="fa-regular fa-square-plus"></i>   Bônus Exclusivos</h2>
+                      <p class="elementor-image-box-description">
+                        Pensando em como eu poderia fazer VOCÊ alcançar bons
+                        resultados da forma mais rápida possível, <br>eu criei
+                        3 Bônus especiais. Você vai ter acesso ao que eu chamo
+                        de Acelerador de resultados, são esses complementos que
+                        farão toda a diferença na sua jornada.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="elementor-element elementor-element-698c622 elementor-widget__width-initial time elementor-hidden-mobile elementor-widget elementor-widget-image" data-id="698c622" data-element_type="widget" data-widget_type="image.default">
+                <div class="elementor-widget-container">
+                  <img decoding="async" width="934" height="479" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20934%20479'%3E%3C/svg%3E" class="attachment-full size-full wp-image-5387" alt="" data-lazy-srcset="images/img-livros-ordem.webp 934w, images/img-livros-ordem-300x154.webp 300w, images/img-livros-ordem-768x394.webp 768w" data-lazy-sizes="(max-width: 934px) 100vw, 934px" data-lazy-src="images/img-livros-ordem.webp"><noscript><img
+                      decoding="async"
+                      width="934"
+                      height="479"
+                      src="images/img-livros-ordem.webp"
+                      class="attachment-full size-full wp-image-5387"
+                      alt=""
+                      srcset="
+                        images/img-livros-ordem.webp         934w,
+                        images/img-livros-ordem-300x154.webp 300w,
+                        images/img-livros-ordem-768x394.webp 768w
+                      "
+                      sizes="(max-width: 934px) 100vw, 934px"
+                  /></noscript>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-8ff9643 elementor-align-justify elementor-mobile-align-justify elementor-widget-mobile__width-initial elementor-widget__width-initial elementor-widget elementor-widget-button" data-id="8ff9643" data-element_type="widget" data-widget_type="button.default">
+            <div class="elementor-widget-container">
+              <div class="elementor-button-wrapper">
+                <a href="https://pay.kuenha.com/cc23c110-2eea-4ced-88f5-9d1316ee7d9f" target="_blank" class="custom-btn-buy elementor-button elementor-size-sm" role="button">
+                  <span class="elementor-button-content-wrapper">
+                    <span class="elementor-button-text">Quero Fazer parte do PROJETO 30K</span>
+                  </span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- com delay -->
+      <div class="esconder elementor-element elementor-element-683cea6 e-flex e-con-boxed e-con e-parent" data-id="683cea6" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" data-e-bg-lazyload="" data-core-v316-plus="true">
+        <div class="e-con-inner">
+          <div class="elementor-element elementor-element-421082f alface e-flex e-con-boxed e-con e-child" data-id="421082f" data-element_type="container" data-settings="{" container_type":"flex","content_width":"boxed"}"="">
+            <div class="e-con-inner">
+              <div class="elementor-element elementor-element-08bda44 elementor-widget__width-initial elementor-widget elementor-widget-image-box" data-id="08bda44" data-element_type="widget" data-widget_type="image-box.default">
+                <div class="elementor-widget-container">
+                  <div class="elementor-image-box-wrapper">
+                    <div class="elementor-image-box-content">
+                      <h2 class="elementor-image-box-title">
+                        Destrave seu Acesso a nossa Área de Membros
+                      </h2>
+                      <p class="elementor-image-box-description">
+                        Você vai acessar a Plataforma com todo o conteúdo
+                        organizado e intuitivo, todos os módulos com aulas
+                        gravadas e aulas surpresa, espaço para tirar dúvidas,
+                        comunidade para trocar ideias e você terá a liberdade de
+                        assistir as aulas quando e onde quiser.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="elementor-element elementor-element-27822cd elementor-widget__width-initial elementor-widget elementor-widget-image" data-id="27822cd" data-element_type="widget" data-widget_type="image.default">
+                <div class="elementor-widget-container">
+                  <img decoding="async" width="664" height="407" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20664%20407'%3E%3C/svg%3E" class="attachment-full size-full wp-image-4182" alt="" data-lazy-srcset="images/BG-PLATAFORMA-MOCKUP-ORDEM.webp 664w, images/BG-PLATAFORMA-MOCKUP-ORDEM-300x184.webp 300w" data-lazy-sizes="(max-width: 664px) 100vw, 664px" data-lazy-src="images/BG-PLATAFORMA-MOCKUP-ORDEM.webp"><noscript><img
+                      decoding="async"
+                      width="664"
+                      height="407"
+                      src="images/BG-PLATAFORMA-MOCKUP-ORDEM.webp"
+                      class="attachment-full size-full wp-image-4182"
+                      alt=""
+                      srcset="
+                        images/BG-PLATAFORMA-MOCKUP-ORDEM.webp         664w,
+                        images/BG-PLATAFORMA-MOCKUP-ORDEM-300x184.webp 300w
+                      "
+                      sizes="(max-width: 664px) 100vw, 664px"
+                  /></noscript>
+                </div>
+              </div>
+              <div class="elementor-element elementor-element-38d42e2 elementor-widget__width-initial elementor-absolute elementor-widget elementor-widget-html" data-id="38d42e2" data-element_type="widget" data-settings="{" _position":"absolute"}"="" data-widget_type="html.default">
+                <div class="elementor-widget-container">
+                  <div class="flare"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="elementor-element elementor-element-d36a819 e-flex e-con-boxed e-con e-parent" data-id="d36a819" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" data-core-v316-plus="true" style="padding-top: 0; padding-bottom: 0;">
+        <div class="e-con-inner">
+          <div class="elementor-element elementor-element-840e304 elementor-widget__width-initial elementor-widget elementor-widget-image" data-id="840e304" data-element_type="widget" data-widget_type="image.default">
+            <div class="elementor-widget-container">
+              <img decoding="async" width="1148" height="229" src="images/logo-ordem-traco-2.webp" class="attachment-full size-full wp-image-4005 entered lazyloaded" alt="" data-lazy-srcset="images/logo-ordem-traco-2.webp 1148w, images/logo-ordem-traco-2-300x60.webp 300w, images/logo-ordem-traco-2-1024x204.webp 1024w, images/logo-ordem-traco-2-768x153.webp 768w" data-lazy-sizes="(max-width: 1148px) 100vw, 1148px" data-lazy-src="images/logo-ordem-traco-2.webp" data-ll-status="loaded" sizes="(max-width: 1148px) 100vw, 1148px" srcset="images/logo-ordem-traco-2.webp 1148w, images/logo-ordem-traco-2-300x60.webp 300w, images/logo-ordem-traco-2-1024x204.webp 1024w, images/logo-ordem-traco-2-768x153.webp 768w"><noscript><img
+                  decoding="async"
+                  width="1148"
+                  height="229"
+                  src="images/logo-ordem-traco-2.webp"
+                  class="attachment-full size-full wp-image-4005"
+                  alt=""
+                  srcset="
+                    images/logo-ordem-traco-2.webp          1148w,
+                    images/logo-ordem-traco-2-300x60.webp    300w,
+                    images/logo-ordem-traco-2-1024x204.webp 1024w,
+                    images/logo-ordem-traco-2-768x153.webp   768w
+                  "
+                  sizes="(max-width: 1148px) 100vw, 1148px"
+              /></noscript>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-4f79b03 elementor-widget__width-initial elementor-widget elementor-widget-image-box" data-id="4f79b03" data-element_type="widget" data-widget_type="image-box.default">
+            <div class="elementor-widget-container">
+              <div class="elementor-image-box-wrapper">
+                <div class="elementor-image-box-content">
+                  <h2 class="elementor-image-box-title">
+                    VEJA O QUE OS MEMBROS DO <destaque>PROJETO 30K</destaque> ESTÃO DIZENDO:
+                  </h2>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="width: 80%; margin-left: 10%; display: grid;" class="blocoProvaSocial">
+
+        <img src="images/prova-1.jpg" style="width: 50%; margin-left: 25%; margin-bottom: 20px; border: 4px solid #05de6e; border-radius: 20px;">
+        <img src="images/prova-2.jpg" style="width: 50%; margin-left: 25%; margin-bottom: 20px; border: 4px solid #05de6e; border-radius: 20px;">
+        <img src="images/prova-3.jpg" style="width: 50%; margin-left: 25%; margin-bottom: 20px; border: 4px solid #05de6e; border-radius: 20px;">
+        <img src="images/prova-4.jpg" style="width: 50%; margin-left: 25%; margin-bottom: 20px; border: 4px solid #05de6e; border-radius: 20px;">
+        <img src="images/prova-5.jpg" style="width: 50%; margin-left: 25%; margin-bottom: 20px; border: 4px solid #05de6e; border-radius: 20px;">
+        <img src="images/prova-6.jpg" style="width: 50%; margin-left: 25%; margin-bottom: 20px; border: 4px solid #05de6e; border-radius: 20px;">
+        <img src="images/prova-7.jpg" style="width: 50%; margin-left: 25%; margin-bottom: 20px; border: 4px solid #05de6e; border-radius: 20px;">
+        <img src="images/prova-8.jpg" style="width: 50%; margin-left: 25%; margin-bottom: 20px; border: 4px solid #05de6e; border-radius: 20px;">
+        <img src="images/prova-9.jpg" style="width: 50%; margin-left: 25%; margin-bottom: 20px; border: 4px solid #05de6e; border-radius: 20px;">
+        <img src="images/prova-10.jpg" style="width: 50%; margin-left: 25%; border: 4px solid #05de6e; border-radius: 20px;">
+
+      </div>
+
+      <!-- com delay -->
+      <div class="esconder elementor-element elementor-element-ce4e3b7 e-flex e-con-boxed e-con e-parent" data-id="ce4e3b7" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" data-e-bg-lazyload="" data-core-v316-plus="true" style="background: none;">
+        <div class="e-con-inner">
+          <div class="elementor-element elementor-element-29f1c35 e-flex e-con-boxed e-con e-child" data-id="29f1c35" data-element_type="container" data-settings="{" container_type":"flex","content_width":"boxed"}"=""></div>
+          <div class="elementor-element elementor-element-c0623ba elementor-widget__width-initial elementor-widget elementor-widget-heading" data-id="c0623ba" data-element_type="widget" data-widget_type="heading.default">
+            <div class="elementor-widget-container">
+              <h2 class="elementor-heading-title elementor-size-default">
+                ESSA É A HORA, <mude>COMECE HOJE!</mude>
+              </h2>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-8a39fb0 elementor-widget__width-initial elementor-widget elementor-widget-html" data-id="8a39fb0" data-element_type="widget" data-widget_type="html.default">
+            <div class="elementor-widget-container">
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+              <div class="fairy"></div>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-ed731f4 e-con-full e-flex e-con e-child" data-id="ed731f4" data-element_type="container" data-settings="{" background_background":"classic","content_width":"full","container_type":"flex"}"="" style="padding-bottom: 30px;">
+            <div class="elementor-element elementor-element-fa90ad3 elementor-widget__width-initial elementor-vertical-align-top elementor-widget elementor-widget-image-box" data-id="fa90ad3" data-element_type="widget" data-widget_type="image-box.default">
+              <div class="elementor-widget-container">
+                <div class="elementor-image-box-wrapper">
+                  <div class="elementor-image-box-content">
+                    <h2 class="elementor-image-box-title">
+                      <pl>Entre</pl><br>HOJE
+                    </h2>
+                    <p class="elementor-image-box-description">
+                      Acesso por 365 dias
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="elementor-element elementor-element-484582b elementor-widget__width-initial elementor-vertical-align-top elementor-widget elementor-widget-image-box" data-id="484582b" data-element_type="widget" data-widget_type="image-box.default">
+              <div class="elementor-widget-container" style="padding-top: 30px; padding-bottom: 20px;">
+                <div class="elementor-image-box-wrapper">
+                  <div class="elementor-image-box-content">
+                    <h2 class="elementor-image-box-title">
+                      12X <valor>R$14,67</valor>/MÊS
+                    </h2>
+                    <p class="elementor-image-box-description">
+                      ou à vista por R$147,00
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="elementor-element elementor-element-9f68385 elementor-widget__width-initial elementor-icon-list--layout-traditional elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-id="9f68385" data-element_type="widget" data-widget_type="icon-list.default">
+              <div class="elementor-widget-container" style="padding-top: 20px;">
+                <ul class="elementor-icon-list-items">
+                  <li class="elementor-icon-list-item">
+                    <span class="elementor-icon-list-icon">
+                      <svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+                      </svg>
+                    </span>
+                    <span class="elementor-icon-list-text">Aulas atualizadas com novidades</span>
+                  </li>
+                  <li class="elementor-icon-list-item">
+                    <span class="elementor-icon-list-icon">
+                      <svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+                      </svg>
+                    </span>
+                    <span class="elementor-icon-list-text">Tudo que funciona atualmente</span>
+                  </li>
+                  <li class="elementor-icon-list-item">
+                    <span class="elementor-icon-list-icon">
+                      <svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+                      </svg>
+                    </span>
+                    <span class="elementor-icon-list-text">Métodos inovadores de vendas online</span>
+                  </li>
+                  <li class="elementor-icon-list-item">
+                    <span class="elementor-icon-list-icon">
+                      <svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+                      </svg>
+                    </span>
+                    <span class="elementor-icon-list-text">Suporte 24/7</span>
+                  </li>
+                  <li class="elementor-icon-list-item">
+                    <span class="elementor-icon-list-icon">
+                      <svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+                      </svg>
+                    </span>
+                    <span class="elementor-icon-list-text"><esp>Membros com o mesmo propósito</esp></span>
+                  </li>
+                  <li class="elementor-icon-list-item">
+                    <span class="elementor-icon-list-icon">
+                      <svg aria-hidden="true" class="e-font-icon-svg e-fas-check" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path>
+                      </svg>
+                    </span>
+                    <span class="elementor-icon-list-text">Acesso por 1 ano</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="elementor-element elementor-element-89ed76b elementor-align-justify elementor-mobile-align-justify elementor-widget-mobile__width-initial elementor-widget__width-initial elementor-widget elementor-widget-button" data-id="89ed76b" data-element_type="widget" data-widget_type="button.default">
+              <div class="elementor-widget-container">
+                <div class="elementor-button-wrapper">
+                  <a href="https://pay.kuenha.com/cc23c110-2eea-4ced-88f5-9d1316ee7d9f" target="_blank" class="custom-btn-buy elementor-button elementor-size-sm" role="button">
+                    <span class="elementor-button-content-wrapper">
+                      <span class="elementor-button-text">QUERO MINHA VAGA!</span>
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-7839125 elementor-widget__width-initial elementor-vertical-align-top elementor-widget elementor-widget-image-box" data-id="7839125" data-element_type="widget" data-widget_type="image-box.default">
+            <div class="elementor-widget-container">
+              <div class="elementor-image-box-wrapper">
+                <div class="elementor-image-box-content">
+                  <h2 class="elementor-image-box-title">
+                    GARANTIA PREMIUM <destaque>30 DIAS</destaque>
+                  </h2>
+                  <p class="elementor-image-box-description">
+                    Entrando agora você irá receber o <b>acesso completo</b> no
+                    seu e-mail. Se em 30 dias vendo todo o conteúdo você por
+                    algum motivo achar que não faz sentido basta pedir o
+                    reembolso que nós devolvemos todo seu dinheiro de forma
+                    simples e segura...
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- com delay -->
+      <div class="esconder elementor-element elementor-element-e768a81 e-flex e-con-boxed e-con e-parent" data-id="e768a81" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" data-core-v316-plus="true">
+        <div class="e-con-inner" style="padding-bottom: 0;">
+          <div class="elementor-element elementor-element-6f19c59 e-flex e-con-boxed e-con e-child" data-id="6f19c59" data-element_type="container" data-settings="{" container_type":"flex","content_width":"boxed"}"="">
+            <div class="e-con-inner">
+
+              <div class="elementor-element elementor-element-8d97bfa elementor-widget__width-initial elementor-vertical-align-top elementor-widget elementor-widget-image-box" data-id="8d97bfa" data-element_type="widget" data-widget_type="image-box.default">
+                <div class="elementor-widget-container">
+                  <div class="elementor-image-box-wrapper">
+                    <div class="elementor-image-box-content">
+                      <h2 class="elementor-image-box-title">
+                        Você será o primeiro
+                        <destaque>milionário da família.</destaque>
+                      </h2>
+                      <p class="elementor-image-box-description gradiente-1" style="border-radius: 20px; padding: 30px;">
+                        <strong>Sidão</strong> é especialista em vendas online,
+                        tem experiência em diversos nichos e já acumula mais de
+                        8 dígitos de faturamento no mercado digital desde o
+                        início da sua trajetória. Ele decidiu ter como missão
+                        ajudar outras pessoas a também venderem online.<br><br>E
+                        o Projeto30K é o meio que vai possibilitar ele ajudar
+                        você a ter resultados e mudar de vida. A sua
+                        transformação começa agora, a partir de hoje o seu
+                        caminho será repleto de sucesso e conquistas.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="elementor-element elementor-element-322b717 elementor-widget__width-initial elementor-position-top elementor-widget elementor-widget-image-box" data-id="322b717" data-element_type="widget" data-widget_type="image-box.default">
+                <div class="elementor-widget-container">
+                  <div class="elementor-image-box-wrapper">
+                    <figure class="elementor-image-box-img">
+                      <img decoding="async" width="400" height="400" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20400%20400'%3E%3C/svg%3E" class="attachment-full size-full wp-image-4245" alt="" data-lazy-srcset="images/sidney.banner.webp 400w, images/sidney.banner-300x300.webp 300w, images/sidney.banner-150x150.webp 150w" data-lazy-sizes="(max-width: 400px) 100vw, 400px" data-lazy-src="images/sidney.banner.webp"><noscript><img
+                          decoding="async"
+                          width="400"
+                          height="400"
+                          src="images/sidney.banner.webp"
+                          class="attachment-full size-full wp-image-4245"
+                          alt=""
+                          srcset="
+                            images/sidney.banner.webp         400w,
+                            images/sidney.banner-300x300.webp 300w,
+                            images/sidney.banner-150x150.webp 150w
+                          "
+                          sizes="(max-width: 400px) 100vw, 400px"
+                      /></noscript>
+                    </figure>
+                    <div class="elementor-image-box-content">
+                      <h2 class="elementor-image-box-title">
+                        Sidney Jr. "Sidão"
+                      </h2>
+                      <p class="elementor-image-box-description">
+                        Criador do PROJETO 30K
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-491891e elementor-widget__width-initial elementor-vertical-align-top elementor-widget elementor-widget-image-box" data-id="491891e" data-element_type="widget" data-widget_type="image-box.default">
+            <div class="elementor-widget-container">
+              <div class="elementor-image-box-wrapper">
+                <div class="elementor-image-box-content">
+                  <h2 class="elementor-image-box-title" style="display:none;">FAQ</h2>
+                  <p class="elementor-image-box-description">
+                    Perguntas frequentes
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-63a5bd4 e-con-full e-flex e-con e-child" data-id="63a5bd4" data-element_type="container" data-settings="{" content_width":"full","container_type":"flex"}"="" style="width: 100%;">
+            <div class="elementor-element elementor-element-68f5868 elementor-widget__width-initial elementor-widget elementor-widget-heading" data-id="68f5868" data-element_type="widget" data-widget_type="heading.default">
+              <div class="elementor-widget-container">
+                <h2 class="elementor-heading-title elementor-size-default">
+                  GERAL:
+                </h2>
+              </div>
+            </div>
+            <div class="elementor-element elementor-element-58951ea elementor-widget__width-initial perguntas elementor-widget elementor-widget-toggle" data-id="58951ea" data-element_type="widget" data-widget_type="toggle.default" style="margin-bottom: 50px;;">
+              <div class="elementor-widget-container" style="    border-left: 1px solid #e0e0e040;
+              border-right: 1px solid #e0e0e040;
+              border-bottom: 1px solid #e0e0e040;
+              padding-left: 20px;
+              padding-right: 20px;">
+                <div class="elementor-toggle">
+                  <div class="elementor-toggle-item">
+                    <div id="elementor-tab-title-9281" class="elementor-tab-title" data-tab="1" role="button" aria-controls="elementor-tab-content-9281" aria-expanded="false">
+                      <span class="elementor-toggle-icon elementor-toggle-icon-right" aria-hidden="true">
+                        <span class="elementor-toggle-icon-closed"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="tile-icon-alt" x="0px" y="0px" viewBox="0 0 39 39" style="enable-background: new 0 0 39 39" xml:space="preserve" width="39" height="39">
+                            <style type="text/css"></style>
+                            <path class="st0" d="M19.5,9.8c0.6,0,1,0.4,1,1l0,7.7l7.7,0c0.6,0,1,0.4,1,1c0,0.6-0.4,1-1,1l-7.7,0l0,7.7c0,0.6-0.4,1-1,1
+        					        		    							c-0.6,0-1-0.4-1-1l0-7.7l-7.7,0c-0.6,0-1-0.5-1-1c0-0.6,0.4-1,1-1l7.7,0l0-7.7C18.5,10.2,19,9.8,19.5,9.8L19.5,9.8z"></path></svg></span>
+                        <span class="elementor-toggle-icon-opened"></span>
+                      </span>
+                      <span class="elementor-toggle-title">O que é o "Projeto 30K"?</span>
+                    </div>
+
+                    <div id="elementor-tab-content-9281" class="elementor-tab-content elementor-clearfix" data-tab="1" role="region" aria-labelledby="elementor-tab-title-9281">
+                      <p>
+                        O Projeto 30K é uma ideia que surgiu quando centenas de
+                        pessoas pediam ajuda para o Sidão no Instagram, as
+                        pessoas queriam uma oportunidade para mudar de realidade
+                        viver uma vida acima da média. A partir disso foi criado
+                        essa comunidade aonde ele compartilha tudo que ele fez
+                        pra conseguir ter resultados expressivos vendendo
+                        produtos em dólar e faturando 5X mais.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="elementor-toggle-item">
+                    <div id="elementor-tab-title-9282" class="elementor-tab-title" data-tab="2" role="button" aria-controls="elementor-tab-content-9282" aria-expanded="false">
+                      <span class="elementor-toggle-icon elementor-toggle-icon-right" aria-hidden="true">
+                        <span class="elementor-toggle-icon-closed"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="tile-icon-alt" x="0px" y="0px" viewBox="0 0 39 39" style="enable-background: new 0 0 39 39" xml:space="preserve" width="39" height="39">
+                            <style type="text/css"></style>
+                            <path class="st0" d="M19.5,9.8c0.6,0,1,0.4,1,1l0,7.7l7.7,0c0.6,0,1,0.4,1,1c0,0.6-0.4,1-1,1l-7.7,0l0,7.7c0,0.6-0.4,1-1,1
+        					        		    							c-0.6,0-1-0.4-1-1l0-7.7l-7.7,0c-0.6,0-1-0.5-1-1c0-0.6,0.4-1,1-1l7.7,0l0-7.7C18.5,10.2,19,9.8,19.5,9.8L19.5,9.8z"></path></svg></span>
+                        <span class="elementor-toggle-icon-opened"></span>
+                      </span>
+                      <span class="elementor-toggle-title">O Projeto 30k funciona para qualquer lugar do mundo?</span>
+                    </div>
+
+                    <div id="elementor-tab-content-9282" class="elementor-tab-content elementor-clearfix" data-tab="2" role="region" aria-labelledby="elementor-tab-title-9282">
+                      <p>
+                        Sim! O Projeto 30k funciona no mundo inteiro,
+                        já temos alunos em diversos países e todos estão satisfeitos
+                        e tendo resultados. O nosso método é validado para qualquer país!
+                      </p>
+                    </div>
+                  </div>
+                  <div class="elementor-toggle-item">
+                    <div id="elementor-tab-title-9283" class="elementor-tab-title" data-tab="3" role="button" aria-controls="elementor-tab-content-9283" aria-expanded="false">
+                      <span class="elementor-toggle-icon elementor-toggle-icon-right" aria-hidden="true">
+                        <span class="elementor-toggle-icon-closed"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="tile-icon-alt" x="0px" y="0px" viewBox="0 0 39 39" style="enable-background: new 0 0 39 39" xml:space="preserve" width="39" height="39">
+                            <style type="text/css"></style>
+                            <path class="st0" d="M19.5,9.8c0.6,0,1,0.4,1,1l0,7.7l7.7,0c0.6,0,1,0.4,1,1c0,0.6-0.4,1-1,1l-7.7,0l0,7.7c0,0.6-0.4,1-1,1
+        					        		    							c-0.6,0-1-0.4-1-1l0-7.7l-7.7,0c-0.6,0-1-0.5-1-1c0-0.6,0.4-1,1-1l7.7,0l0-7.7C18.5,10.2,19,9.8,19.5,9.8L19.5,9.8z"></path></svg></span>
+                        <span class="elementor-toggle-icon-opened"></span>
+                      </span>
+                      <span class="elementor-toggle-title">Em quanto tempo terei resultado com o Projeto 30k?</span>
+                    </div>
+
+                    <div id="elementor-tab-content-9283" class="elementor-tab-content elementor-clearfix" data-tab="3" role="region" aria-labelledby="elementor-tab-title-9283">
+                      <p>
+                        Você terá resultado no primeiro dia após aplicar a nossa metodologia,
+                        então isso só dependerá de você, se executar tudo que ensinamos de forma rápida
+                        os seus resultados também virão de forma rápida e você verá o poder das vendas online
+                        em dólar.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="elementor-toggle-item">
+                    <div id="elementor-tab-title-9284" class="elementor-tab-title" data-tab="4" role="button" aria-controls="elementor-tab-content-9284" aria-expanded="false">
+                      <span class="elementor-toggle-icon elementor-toggle-icon-right" aria-hidden="true">
+                        <span class="elementor-toggle-icon-closed"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="tile-icon-alt" x="0px" y="0px" viewBox="0 0 39 39" style="enable-background: new 0 0 39 39" xml:space="preserve" width="39" height="39">
+                            <style type="text/css"></style>
+                            <path class="st0" d="M19.5,9.8c0.6,0,1,0.4,1,1l0,7.7l7.7,0c0.6,0,1,0.4,1,1c0,0.6-0.4,1-1,1l-7.7,0l0,7.7c0,0.6-0.4,1-1,1
+        					        		    							c-0.6,0-1-0.4-1-1l0-7.7l-7.7,0c-0.6,0-1-0.5-1-1c0-0.6,0.4-1,1-1l7.7,0l0-7.7C18.5,10.2,19,9.8,19.5,9.8L19.5,9.8z"></path></svg></span>
+                        <span class="elementor-toggle-icon-opened"></span>
+                      </span>
+                      <span class="elementor-toggle-title">Terei que investir dinheiro além da compra do Projeto 30k?</span>
+                    </div>
+
+                    <div id="elementor-tab-content-9284" class="elementor-tab-content elementor-clearfix" data-tab="4" role="region" aria-labelledby="elementor-tab-title-9284">
+                      <p>
+                        Nós ensinamos formas de você conseguir vender sem ter que investir
+                        e também ensinamos várias formas de você levantar caixa,
+                        para poder investir em anúncios e dessa forma conseguir ter mais escala
+                        e faturar muito, assim como eu e milhares de alunos.
+                        
+                      </p>
+                    </div>
+                  </div>
+                  <div class="elementor-toggle-item">
+                    <div id="elementor-tab-title-9285" class="elementor-tab-title" data-tab="5" role="button" aria-controls="elementor-tab-content-9285" aria-expanded="false">
+                      <span class="elementor-toggle-icon elementor-toggle-icon-right" aria-hidden="true">
+                        <span class="elementor-toggle-icon-closed"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="tile-icon-alt" x="0px" y="0px" viewBox="0 0 39 39" style="enable-background: new 0 0 39 39" xml:space="preserve" width="39" height="39">
+                            <style type="text/css"></style>
+                            <path class="st0" d="M19.5,9.8c0.6,0,1,0.4,1,1l0,7.7l7.7,0c0.6,0,1,0.4,1,1c0,0.6-0.4,1-1,1l-7.7,0l0,7.7c0,0.6-0.4,1-1,1
+        					        		    							c-0.6,0-1-0.4-1-1l0-7.7l-7.7,0c-0.6,0-1-0.5-1-1c0-0.6,0.4-1,1-1l7.7,0l0-7.7C18.5,10.2,19,9.8,19.5,9.8L19.5,9.8z"></path></svg></span>
+                        <span class="elementor-toggle-icon-opened"></span>
+                      </span>
+                      <span class="elementor-toggle-title">Sou iniciante, o Projeto 30k serve para mim?</span>
+                    </div>
+
+                    <div id="elementor-tab-content-9285" class="elementor-tab-content elementor-clearfix" data-tab="5" role="region" aria-labelledby="elementor-tab-title-9285">
+                      <p>
+                        Com certeza! Dentro do Projeto 30k ensinamos desde o extremo básico
+                        até o nível mais avançado dentro das vendas online.
+                        Então você terá acesso à aulas muito didáticas e com uma linguagem simples
+                        e de fácil entendimento.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="elementor-toggle-item">
+                    <div id="elementor-tab-title-9286" class="elementor-tab-title" data-tab="6" role="button" aria-controls="elementor-tab-content-9286" aria-expanded="false">
+                      <span class="elementor-toggle-icon elementor-toggle-icon-right" aria-hidden="true">
+                        <span class="elementor-toggle-icon-closed"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="tile-icon-alt" x="0px" y="0px" viewBox="0 0 39 39" style="enable-background: new 0 0 39 39" xml:space="preserve" width="39" height="39">
+                            <style type="text/css"></style>
+                            <path class="st0" d="M19.5,9.8c0.6,0,1,0.4,1,1l0,7.7l7.7,0c0.6,0,1,0.4,1,1c0,0.6-0.4,1-1,1l-7.7,0l0,7.7c0,0.6-0.4,1-1,1
+        					        		    							c-0.6,0-1-0.4-1-1l0-7.7l-7.7,0c-0.6,0-1-0.5-1-1c0-0.6,0.4-1,1-1l7.7,0l0-7.7C18.5,10.2,19,9.8,19.5,9.8L19.5,9.8z"></path></svg></span>
+                        <span class="elementor-toggle-icon-opened"></span>
+                      </span>
+                      <span class="elementor-toggle-title">Já comprei cursos e não tive resultado, porque o Projeto 30k é diferente?</span>
+                    </div>
+
+                    <div id="elementor-tab-content-9286" class="elementor-tab-content elementor-clearfix" data-tab="6" role="region" aria-labelledby="elementor-tab-title-9286">
+                      <p>
+                        Provavelmente você comprou algum curso de algum guru que
+                        vive apenas da venda de cursos, diferente de mim que só depois
+                        de faturar milhões vendendo meus PRG's, decidi criar o Projeto 30k
+                        para poder ajudar outras pessoas a também venderem online.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-972c7e4 e-con-full e-flex e-con e-child" data-id="972c7e4" data-element_type="container" data-settings="{" content_width":"full","container_type":"flex"}"="" style="width: 100%;">
+            <div class="elementor-element elementor-element-e023332 elementor-widget__width-initial elementor-widget elementor-widget-heading" data-id="e023332" data-element_type="widget" data-widget_type="heading.default">
+              <div class="elementor-widget-container">
+                <h2 class="elementor-heading-title elementor-size-default">
+                  Suporte:
+                </h2>
+              </div>
+            </div>
+            <div class="elementor-element elementor-element-1bc340d elementor-widget__width-initial perguntas elementor-widget elementor-widget-toggle" data-id="1bc340d" data-element_type="widget" data-widget_type="toggle.default" style="margin-bottom: 50px;">
+              <div class="elementor-widget-container" style="    border-left: 1px solid #e0e0e040;
+              border-right: 1px solid #e0e0e040;
+              border-bottom: 1px solid #e0e0e040;
+              padding-left: 20px;
+              padding-right: 20px;">
+                <div class="elementor-toggle">
+                  <div class="elementor-toggle-item">
+                    <div id="elementor-tab-title-2911" class="elementor-tab-title" data-tab="1" role="button" aria-controls="elementor-tab-content-2911" aria-expanded="false">
+                      <span class="elementor-toggle-icon elementor-toggle-icon-right" aria-hidden="true">
+                        <span class="elementor-toggle-icon-closed"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="tile-icon-alt" x="0px" y="0px" viewBox="0 0 39 39" style="enable-background: new 0 0 39 39" xml:space="preserve" width="39" height="39">
+                            <style type="text/css"></style>
+                            <path class="st0" d="M19.5,9.8c0.6,0,1,0.4,1,1l0,7.7l7.7,0c0.6,0,1,0.4,1,1c0,0.6-0.4,1-1,1l-7.7,0l0,7.7c0,0.6-0.4,1-1,1
+        					        		    							c-0.6,0-1-0.4-1-1l0-7.7l-7.7,0c-0.6,0-1-0.5-1-1c0-0.6,0.4-1,1-1l7.7,0l0-7.7C18.5,10.2,19,9.8,19.5,9.8L19.5,9.8z"></path></svg></span>
+                        <span class="elementor-toggle-icon-opened"></span>
+                      </span>
+                      <span class="elementor-toggle-title">Se surgir alguma dúvida, terei atendimento?</span>
+                    </div>
+
+                    <div id="elementor-tab-content-2911" class="elementor-tab-content elementor-clearfix" data-tab="1" role="region" aria-labelledby="elementor-tab-title-2911">
+                      <p>
+                        Sim! Toda a equipe de suporte e á pronta para te
+                        ajudar pelo whatsapp e e-mail, então não pense 2 vezes e
+                        fale com o suporte para sanar qualquer dúvida que você
+                        tiver.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="elementor-toggle-item">
+                    <div id="elementor-tab-title-2912" class="elementor-tab-title" data-tab="2" role="button" aria-controls="elementor-tab-content-2912" aria-expanded="false">
+                      <span class="elementor-toggle-icon elementor-toggle-icon-right" aria-hidden="true">
+                        <span class="elementor-toggle-icon-closed"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="tile-icon-alt" x="0px" y="0px" viewBox="0 0 39 39" style="enable-background: new 0 0 39 39" xml:space="preserve" width="39" height="39">
+                            <style type="text/css"></style>
+                            <path class="st0" d="M19.5,9.8c0.6,0,1,0.4,1,1l0,7.7l7.7,0c0.6,0,1,0.4,1,1c0,0.6-0.4,1-1,1l-7.7,0l0,7.7c0,0.6-0.4,1-1,1
+        					        		    							c-0.6,0-1-0.4-1-1l0-7.7l-7.7,0c-0.6,0-1-0.5-1-1c0-0.6,0.4-1,1-1l7.7,0l0-7.7C18.5,10.2,19,9.8,19.5,9.8L19.5,9.8z"></path></svg></span>
+                        <span class="elementor-toggle-icon-opened"></span>
+                      </span>
+                      <span class="elementor-toggle-title">O suporte funciona todo dia?</span>
+                    </div>
+
+                    <div id="elementor-tab-content-2912" class="elementor-tab-content elementor-clearfix" data-tab="2" role="region" aria-labelledby="elementor-tab-title-2912">
+                      <p>
+                        Nosso suporte funciona todos os dias da semana e
+                        qualquer horário, ou seja 24/7.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="elementor-element elementor-element-072d23f elementor-widget__width-initial elementor-widget elementor-widget-heading" data-id="072d23f" data-element_type="widget" data-widget_type="heading.default">
+              <div class="elementor-widget-container">
+                <h2 class="elementor-heading-title elementor-size-default">
+                  Pagamento:
+                </h2>
+              </div>
+            </div>
+            <div class="elementor-element elementor-element-ad73076 elementor-widget__width-initial perguntas elementor-widget elementor-widget-toggle" data-id="ad73076" data-element_type="widget" data-widget_type="toggle.default" style="margin-bottom: 50px;">
+              <div class="elementor-widget-container" style="    border-left: 1px solid #e0e0e040;
+              border-right: 1px solid #e0e0e040;
+              border-bottom: 1px solid #e0e0e040;
+              padding-left: 20px;
+              padding-right: 20px;"> 
+                <div class="elementor-toggle">
+                  <div class="elementor-toggle-item">
+                    <div id="elementor-tab-title-1811" class="elementor-tab-title" data-tab="1" role="button" aria-controls="elementor-tab-content-1811" aria-expanded="false">
+                      <span class="elementor-toggle-icon elementor-toggle-icon-right" aria-hidden="true">
+                        <span class="elementor-toggle-icon-closed"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="tile-icon-alt" x="0px" y="0px" viewBox="0 0 39 39" style="enable-background: new 0 0 39 39" xml:space="preserve" width="39" height="39">
+                            <style type="text/css"></style>
+                            <path class="st0" d="M19.5,9.8c0.6,0,1,0.4,1,1l0,7.7l7.7,0c0.6,0,1,0.4,1,1c0,0.6-0.4,1-1,1l-7.7,0l0,7.7c0,0.6-0.4,1-1,1
+        					        		    							c-0.6,0-1-0.4-1-1l0-7.7l-7.7,0c-0.6,0-1-0.5-1-1c0-0.6,0.4-1,1-1l7.7,0l0-7.7C18.5,10.2,19,9.8,19.5,9.8L19.5,9.8z"></path></svg></span>
+                        <span class="elementor-toggle-icon-opened"></span>
+                      </span>
+                      <span class="elementor-toggle-title">Qual a minha garantia?</span>
+                    </div>
+
+                    <div id="elementor-tab-content-1811" class="elementor-tab-content elementor-clearfix" data-tab="1" role="region" aria-labelledby="elementor-tab-title-1811">
+                      <p>
+                        Você está protegido com a nossa Garantia Premium de 30
+                        dias, então caso você não esteja satisfeito basta
+                        acionar a garantia e receber todo o seu dinheiro de
+                        volta, sem perguntas e sem enrolação.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="elementor-toggle-item">
+                    <div id="elementor-tab-title-1812" class="elementor-tab-title" data-tab="2" role="button" aria-controls="elementor-tab-content-1812" aria-expanded="false">
+                      <span class="elementor-toggle-icon elementor-toggle-icon-right" aria-hidden="true">
+                        <span class="elementor-toggle-icon-closed"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="tile-icon-alt" x="0px" y="0px" viewBox="0 0 39 39" style="enable-background: new 0 0 39 39" xml:space="preserve" width="39" height="39">
+                            <style type="text/css"></style>
+                            <path class="st0" d="M19.5,9.8c0.6,0,1,0.4,1,1l0,7.7l7.7,0c0.6,0,1,0.4,1,1c0,0.6-0.4,1-1,1l-7.7,0l0,7.7c0,0.6-0.4,1-1,1
+        					        		    							c-0.6,0-1-0.4-1-1l0-7.7l-7.7,0c-0.6,0-1-0.5-1-1c0-0.6,0.4-1,1-1l7.7,0l0-7.7C18.5,10.2,19,9.8,19.5,9.8L19.5,9.8z"></path></svg></span>
+                        <span class="elementor-toggle-icon-opened"></span>
+                      </span>
+                      <span class="elementor-toggle-title">Quais são as formas de pagamento?</span>
+                    </div>
+
+                    <div id="elementor-tab-content-1812" class="elementor-tab-content elementor-clearfix" data-tab="2" role="region" aria-labelledby="elementor-tab-title-1812">
+                      <p>
+                        Você pode entrar para o Projeto 30k usando as seguintes
+                        formas de pagamento:
+                      </p>
+                      <ul>
+                        <li>Cartão de crédito (em até 12x). </li>
+                        <li>Ou PIX.</li>
+                      </ul>
+                      <p>
+                        Seu acesso será imediato pagando no cartão de crédito ou
+                        PIX.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="elementor-toggle-item">
+                    <div id="elementor-tab-title-1813" class="elementor-tab-title" data-tab="3" role="button" aria-controls="elementor-tab-content-1813" aria-expanded="false">
+                      <span class="elementor-toggle-icon elementor-toggle-icon-right" aria-hidden="true">
+                        <span class="elementor-toggle-icon-closed"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="tile-icon-alt" x="0px" y="0px" viewBox="0 0 39 39" style="enable-background: new 0 0 39 39" xml:space="preserve" width="39" height="39">
+                            <style type="text/css"></style>
+                            <path class="st0" d="M19.5,9.8c0.6,0,1,0.4,1,1l0,7.7l7.7,0c0.6,0,1,0.4,1,1c0,0.6-0.4,1-1,1l-7.7,0l0,7.7c0,0.6-0.4,1-1,1
+        					        		    							c-0.6,0-1-0.4-1-1l0-7.7l-7.7,0c-0.6,0-1-0.5-1-1c0-0.6,0.4-1,1-1l7.7,0l0-7.7C18.5,10.2,19,9.8,19.5,9.8L19.5,9.8z"></path></svg></span>
+                        <span class="elementor-toggle-icon-opened"></span>
+                      </span>
+                      <span class="elementor-toggle-title">Minha compra não foi apradava, o que fazer?</span>
+                    </div>
+
+                    <div id="elementor-tab-content-1813" class="elementor-tab-content elementor-clearfix" data-tab="3" role="region" aria-labelledby="elementor-tab-title-1813">
+                      <p>
+                        Caso a sua compra não seja aprovada, basta avisar o
+                        nosso suporte imediatamente no Whatsapp (62) 995775370 que disponilizaremos outro
+                        link para você finalizar sua compra.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="elementor-element elementor-element-eca776d e-flex e-con-boxed e-con e-parent" data-id="eca776d" data-element_type="container" data-settings="{" background_background":"classic","container_type":"flex","content_width":"boxed"}"="" data-core-v316-plus="true" style="border-radius: 0;">
+        <div class="e-con-inner" style="padding: 30px 0; padding-bottom: 10px;">
+          <div class="elementor-element elementor-element-317485e elementor-widget__width-initial elementor-vertical-align-top elementor-widget elementor-widget-image-box" data-id="317485e" data-element_type="widget" data-widget_type="image-box.default">
+            <div class="elementor-widget-container">
+              <div class="elementor-image-box-wrapper">
+                <div class="elementor-image-box-content">
+
+                  <img src="images/logo-transp.png" style="width: 200px;">
+                  
+                  <h2 class="elementor-image-box-title">
+                    Copyright © 2023 | Todos os direitos reservados
+                  </h2>
+                  <p class="elementor-image-box-description">
+                    <alta2 style="display: grid; line-height: 45px;"><u><a href="https://projeto30k.com.br/politica-de-privacidade/" target="_blank">Política de Privacidade</a></u>
+                      
+                      <u><a href="https://projeto30k.com.br/termos-de-uso/" target="_blank">Termos de Uso</a></u>
+                      
+                    </alta2>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="elementor-element elementor-element-f0e7585 elementor-widget__width-initial elementor-widget elementor-widget-html" data-id="f0e7585" data-element_type="widget" data-widget_type="html.default">
+            <div class="elementor-widget-container">
+              <script type="rocketlazyloadscript" data-minify="1" data-rocket-src="./assets/resources/cache/min/1/ajax/libs/gsap/3.11.5/gsap.min.js?ver=1701213888"></script>
+              <script type="rocketlazyloadscript" data-minify="1" data-rocket-src="./assets/resources/cache/min/1/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js?ver=1701213888"></script>
+
+              <script type="rocketlazyloadscript" data-minify="1" data-rocket-src="./assets/resources/cache/min/1/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js?ver=1701213883"></script>
+              <script type="rocketlazyloadscript" data-minify="1" data-rocket-src="./assets/resources/cache/min/1/ajax/libs/jquery/3.4.1/jquery.min.js?ver=1701213883"></script>
+              <script type="rocketlazyloadscript" data-minify="1" data-rocket-src="./assets/resources/cache/min/1/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js?ver=1701213883"></script>
+
+              <script type="rocketlazyloadscript">
+                $(document).ready(function() {
+                  const phoneInputField = $('input[name="phone"]');
+                  const btForm = $('button[type="submit"]');
+                  let telefones = [];
+
+                  phoneInputField.each(function() {
+                    var phone_number = window.intlTelInput(this, {
+                      separateDialCode: true,
+                      preferredCountries:["br", "pt", "ao", "us", "mz"],
+                      hiddenInput: "full",
+                      utilsScript: "//cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+                    });
+
+                    telefones.push(phone_number);
+                  });
+
+                  // Aplica a máscara ao entrar na página
+                  phoneInputField.each(function(index) {
+                    var countryCode = telefones[index].getSelectedCountryData().iso2;
+                    var mask = getMask(countryCode);
+                    $(this).mask(mask);
+                  });
+
+                  // Atualiza a máscara ao selecionar um novo countryCode
+                  phoneInputField.on('countrychange', function() {
+                    var index = phoneInputField.index($(this));
+                    var countryCode = telefones[index].getSelectedCountryData().iso2;
+                    var mask = getMask(countryCode);
+
+                    if (mask !== '') {
+                      $(this).mask(mask);
+                      removeErrorMessage($(this));
+                    } else {
+                      $(this).unmask();
+                      removeErrorMessage($(this));
+                      btForm.prop('disabled', false); // Habilita o botão de envio
+                    }
+
+                    validatePhoneNumber($(this), telefones[index]);
+                  });
+
+                  phoneInputField.on('input', function() {
+                    var index = phoneInputField.index($(this));
+                    validatePhoneNumber($(this), telefones[index]);
+                  });
+
+                  btForm.click(function() {
+                    phoneInputField.each(function(index) {
+                      var full_number = telefones[index].getNumber(intlTelInputUtils.numberFormat.E164);
+                      $(this).val(full_number);
+                    });
+                  });
+
+                  function getMask(countryCode) {
+                    var mask = '';
+                    if (countryCode === 'br') {
+                      mask = '(00) 00000-0000';
+                    } else if (countryCode === 'pt') {
+                      mask = '000 000 000';
+                    } else if (countryCode === 'ao') {
+                      mask = '000 000 000';
+                    } else if (countryCode === 'us') {
+                      mask = '(000) 000-0000';
+                    } else if (countryCode === 'mz') {
+                      mask = '00 000 0000';
+                    }
+                    return mask;
+                  }
+
+                  function removeErrorMessage(inputField) {
+                    inputField.removeClass('invalid');
+                    inputField.siblings('.error-message').remove();
+                  }
+
+                  function validatePhoneNumber(inputField, phoneNumber) {
+                    var countryCode = phoneNumber.getSelectedCountryData().iso2;
+                    var maskFormats = {
+                      br: '(00) 00000-0000',
+                      pt: '000 000 000',
+                      ao: '000 000 000',
+                      us: '(000) 000-0000',
+                      mz: '00 000 0000'
+                      // Adicione mais formatos de máscara para outros países, se necessário
+                    };
+                    var mask = maskFormats[countryCode];
+                    var number = inputField.val().replace(/\D/g, '');
+
+                    if (mask !== undefined) {
+                      inputField.mask(mask);
+                      removeErrorMessage(inputField);
+                    } else {
+                      inputField.unmask();
+                      removeErrorMessage(inputField);
+                      btForm.prop('disabled', false); // Habilita o botão de envio
+                    }
+
+                    if (number.length === 0) {
+                      inputField.removeClass('invalid');
+                      inputField.siblings('.error-message').remove();
+                      btForm.prop('disabled', false); // Habilita o botão de envio
+                      return true;
+                    }
+
+                    if (!mask) {
+                      // Não há máscara definida para o countryCode selecionado, não é necessário realizar a validação
+                      return true;
+                    }
+
+                    var isValid = phoneNumber.isValidNumber();
+
+                    if (isValid) {
+                      inputField.removeClass('invalid');
+                      inputField.siblings('.error-message').remove();
+                      btForm.prop('disabled', false); // Habilita o botão de envio
+                    } else {
+                      inputField.addClass('invalid');
+                      inputField.siblings('.error-message').remove();
+                      inputField.after('<div class="error-message">Por favor, insira um telefone válido!</div>');
+                      btForm.prop('disabled', true); // Desabilita o botão de envio
+                    }
+
+                    return true;
+                  }
+
+                });
+              </script>
+              <script type="rocketlazyloadscript">
+                const btPopup = document.querySelectorAll(".bt-popup");
+                const popup = document.getElementById("popup");
+                const btFechar = document.getElementById("bt-fechar");
+
+                function abrirPopup(){
+                    popup.classList.add("popup-ativo");
+                }
+
+                function fecharPopup(){
+                    popup.classList.remove("popup-ativo");
+                }
+
+                for (i=0; i < btPopup.length; i++){
+                    btPopup[i].addEventListener("click", abrirPopup)
+                }
+
+                btFechar.addEventListener("click", fecharPopup);
+              </script>
+              <script type="rocketlazyloadscript">
+                document.getElementById("phone").onchange = function() {
+                  myFunctionUTM();
+                };
+
+                function myFunctionUTM() {
+                  const queryStringCapt = window.location.search;
+                  const urlParamsCapt = new URLSearchParams(queryStringCapt);
+                  const utm_campaign_capt = urlParamsCapt.get("utm_campaign");
+                  const utm_medium_capt = urlParamsCapt.get("utm_medium");
+                  const utm_source_capt = urlParamsCapt.get("utm_source");
+                  const utm_content_capt = urlParamsCapt.get("utm_content");
+                  const utm_term_capt = urlParamsCapt.get("utm_term");
+
+                  document.getElementById("utm_campaign").value = utm_campaign_capt;
+                  document.getElementById("utm_medium").value = utm_medium_capt;
+                  document.getElementById("utm_source").value = utm_source_capt;
+                  document.getElementById("utm_content").value = utm_content_capt;
+                  document.getElementById("utm_term").value = utm_term_capt;
+                }
+              </script>
+              <script>
+                const elementosToggle = document.querySelectorAll(
+                  ".elementor-toggle-title"
+                );
+
+                elementosToggle.forEach((elemento) => {
+                  const novoToggle = document.createElement("span");
+                  novoToggle.innerHTML = elemento.innerHTML;
+                  novoToggle.classList.add("elementor-toggle-title");
+                  elemento.parentNode.replaceChild(novoToggle, elemento);
+                });
+              </script>
+              <script type="rocketlazyloadscript">
+                const animado = document.getElementById('animado');
+
+                // Função para verificar quando a seção 'animado' está cerca de 30% visível na janela de visualização
+                function isElementInViewport(el) {
+                  const rect = el?.getBoundingClientRect();
+                  const windowHeight = window.innerHeight;
+                  return (rect?.top + rect?.height * 0.5 <= windowHeight);
+                }
+
+                // Adiciona a classe de animação quando a seção 'animado' estiver visível
+                function checkAnimation() {
+                  if (isElementInViewport(animado)) {
+                    animado.classList.add('start-animation');
+                    window.removeEventListener('scroll', checkAnimation);
+                  }
+                }
+
+                // Verifica o estado da animação quando a página é carregada e quando a janela é rolada
+                window.addEventListener('load', checkAnimation);
+                window.addEventListener('scroll', checkAnimation);
+              </script>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="notification">
+        <div class="text">
+          <h3 class="name">Luciana Oliveira comprou</h3>
+          <h5>
+            <span class="time">há 18 minutos</span>
+            <span class="verified">verificada</span>
+          </h5>
+        </div>
+        <span class="close"> × </span>
+      </div>
+    </div>
+    <script type="rocketlazyloadscript" data-rocket-type="text/javascript">
+      (function(e,t,o,n,p,r,i){e.visitorGlobalObjectAlias=n;e[e.visitorGlobalObjectAlias]=e[e.visitorGlobalObjectAlias]||function(){(e[e.visitorGlobalObjectAlias].q=e[e.visitorGlobalObjectAlias].q||[]).push(arguments)};e[e.visitorGlobalObjectAlias].l=(new Date).getTime();r=t.createElement("script");r.src=o;r.async=true;i=t.getElementsByTagName("script")[0];i.parentNode.insertBefore(r,i)})(window,document,"https://diffuser-cdn.app-us1.com/diffuser/diffuser.js","vgo");
+      vgo('setAccount', '254527129');
+      vgo('setTrackByDefault', true);
+
+      vgo('process');
+    </script>
+    <script type="rocketlazyloadscript" data-rocket-type="text/javascript">
+      const lazyloadRunObserver = () => {
+      	const dataAttribute = 'data-e-bg-lazyload';
+      	const lazyloadBackgrounds = document.querySelectorAll( `[${ dataAttribute }]:not(.lazyloaded)` );
+      	const lazyloadBackgroundObserver = new IntersectionObserver( ( entries ) => {
+      	entries.forEach( ( entry ) => {
+      		if ( entry.isIntersecting ) {
+      			let lazyloadBackground = entry.target;
+      			const lazyloadSelector = lazyloadBackground.getAttribute( dataAttribute );
+      			if ( lazyloadSelector ) {
+      				lazyloadBackground = entry.target.querySelector( lazyloadSelector );
+      			}
+      			if( lazyloadBackground ) {
+      				lazyloadBackground.classList.add( 'lazyloaded' );
+      			}
+      			lazyloadBackgroundObserver.unobserve( entry.target );
+      		}
+      	});
+      	}, { rootMargin: '100px 0px 100px 0px' } );
+      	lazyloadBackgrounds.forEach( ( lazyloadBackground ) => {
+      		lazyloadBackgroundObserver.observe( lazyloadBackground );
+      	} );
+      };
+      const events = [
+      	'DOMContentLoaded',
+      	'elementor/lazyload/observe',
+      ];
+      events.forEach( ( event ) => {
+      	document.addEventListener( event, lazyloadRunObserver );
+      } );
+    </script>
+    <script type="rocketlazyloadscript" id="rocket-browser-checker-js-after">
+      "use strict";var _createClass=function(){function defineProperties(target,props){for(var i=0;i<props.length;i++){var descriptor=props[i];descriptor.enumerable=descriptor.enumerable||!1,descriptor.configurable=!0,"value"in descriptor&&(descriptor.writable=!0),Object.defineProperty(target,descriptor.key,descriptor)}}return function(Constructor,protoProps,staticProps){return protoProps&&defineProperties(Constructor.prototype,protoProps),staticProps&&defineProperties(Constructor,staticProps),Constructor}}();function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor))throw new TypeError("Cannot call a class as a function")}var RocketBrowserCompatibilityChecker=function(){function RocketBrowserCompatibilityChecker(options){_classCallCheck(this,RocketBrowserCompatibilityChecker),this.passiveSupported=!1,this._checkPassiveOption(this),this.options=!!this.passiveSupported&&options}return _createClass(RocketBrowserCompatibilityChecker,[{key:"_checkPassiveOption",value:function(self){try{var options={get passive(){return!(self.passiveSupported=!0)}};window.addEventListener("test",null,options),window.removeEventListener("test",null,options)}catch(err){self.passiveSupported=!1}}},{key:"initRequestIdleCallback",value:function(){!1 in window&&(window.requestIdleCallback=function(cb){var start=Date.now();return setTimeout(function(){cb({didTimeout:!1,timeRemaining:function(){return Math.max(0,50-(Date.now()-start))}})},1)}),!1 in window&&(window.cancelIdleCallback=function(id){return clearTimeout(id)})}},{key:"isDataSaverModeOn",value:function(){return"connection"in navigator&&!0===navigator.connection.saveData}},{key:"supportsLinkPrefetch",value:function(){var elem=document.createElement("link");return elem.relList&&elem.relList.supports&&elem.relList.supports("prefetch")&&window.IntersectionObserver&&"isIntersecting"in IntersectionObserverEntry.prototype}},{key:"isSlowConnection",value:function(){return"connection"in navigator&&"effectiveType"in navigator.connection&&("2g"===navigator.connection.effectiveType||"slow-2g"===navigator.connection.effectiveType)}}]),RocketBrowserCompatibilityChecker}();
+    </script>
+    <script id="rocket-preload-links-js-extra">
+      var RocketPreloadLinksConfig = {
+        excludeUris:
+          "\/(?:.+\/)?feed(?:\/(?:.+\/?)?)?$|\/(?:.+\/)?embed\/|\/(index.php\/)?(.*)wp-json(\/.*|$)|\/refer\/|\/go\/|\/recommend\/|\/recommends\/",
+        usesTrailingSlash: "1",
+        imageExt:
+          "jpg|jpeg|gif|png|tiff|bmp|webp|avif|pdf|doc|docx|xls|xlsx|php",
+        fileExt:
+          "jpg|jpeg|gif|png|tiff|bmp|webp|avif|pdf|doc|docx|xls|xlsx|php|html|htm",
+        siteUrl: "https:\/\/comunidadeaordem.com.br",
+        onHoverDelay: "100",
+        rateThrottle: "3",
+      };
+    </script>
+    <script type="rocketlazyloadscript" id="rocket-preload-links-js-after">
+      (function() {
+      "use strict";var r="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},e=function(){function i(e,t){for(var n=0;n<t.length;n++){var i=t[n];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(e,t,n){return t&&i(e.prototype,t),n&&i(e,n),e}}();function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}var t=function(){function n(e,t){i(this,n),this.browser=e,this.config=t,this.options=this.browser.options,this.prefetched=new Set,this.eventTime=null,this.threshold=1111,this.numOnHover=0}return e(n,[{key:"init",value:function(){!this.browser.supportsLinkPrefetch()||this.browser.isDataSaverModeOn()||this.browser.isSlowConnection()||(this.regex={excludeUris:RegExp(this.config.excludeUris,"i"),images:RegExp(".("+this.config.imageExt+")$","i"),fileExt:RegExp(".("+this.config.fileExt+")$","i")},this._initListeners(this))}},{key:"_initListeners",value:function(e){-1<this.config.onHoverDelay&&document.addEventListener("mouseover",e.listener.bind(e),e.listenerOptions),document.addEventListener("mousedown",e.listener.bind(e),e.listenerOptions),document.addEventListener("touchstart",e.listener.bind(e),e.listenerOptions)}},{key:"listener",value:function(e){var t=e.target.closest("a"),n=this._prepareUrl(t);if(null!==n)switch(e.type){case"mousedown":case"touchstart":this._addPrefetchLink(n);break;case"mouseover":this._earlyPrefetch(t,n,"mouseout")}}},{key:"_earlyPrefetch",value:function(t,e,n){var i=this,r=setTimeout(function(){if(r=null,0===i.numOnHover)setTimeout(function(){return i.numOnHover=0},1e3);else if(i.numOnHover>i.config.rateThrottle)return;i.numOnHover++,i._addPrefetchLink(e)},this.config.onHoverDelay);t.addEventListener(n,function e(){t.removeEventListener(n,e,{passive:!0}),null!==r&&(clearTimeout(r),r=null)},{passive:!0})}},{key:"_addPrefetchLink",value:function(i){return this.prefetched.add(i.href),new Promise(function(e,t){var n=document.createElement("link");n.rel="prefetch",n.href=i.href,n.onload=e,n.onerror=t,document.head.appendChild(n)}).catch(function(){})}},{key:"_prepareUrl",value:function(e){if(null===e||"object"!==(void 0===e?"undefined":r(e))||!1 in e||-1===["http:","https:"].indexOf(e.protocol))return null;var t=e.href.substring(0,this.config.siteUrl.length),n=this._getPathname(e.href,t),i={original:e.href,protocol:e.protocol,origin:t,pathname:n,href:t+n};return this._isLinkOk(i)?i:null}},{key:"_getPathname",value:function(e,t){var n=t?e.substring(this.config.siteUrl.length):e;return n.startsWith("/")||(n="/"+n),this._shouldAddTrailingSlash(n)?n+"/":n}},{key:"_shouldAddTrailingSlash",value:function(e){return this.config.usesTrailingSlash&&!e.endsWith("/")&&!this.regex.fileExt.test(e)}},{key:"_isLinkOk",value:function(e){return null!==e&&"object"===(void 0===e?"undefined":r(e))&&(!this.prefetched.has(e.href)&&e.origin===this.config.siteUrl&&-1===e.href.indexOf("?")&&-1===e.href.indexOf("#")&&!this.regex.excludeUris.test(e.href)&&!this.regex.images.test(e.href))}}],[{key:"run",value:function(){"undefined"!=typeof RocketPreloadLinksConfig&&new n(new RocketBrowserCompatibilityChecker({capture:!0,passive:!0}),RocketPreloadLinksConfig).init()}}]),n}();t.run();
+      }());
+    </script>
+    <script id="rocket_lazyload_css-js-extra">
+      var rocket_lazyload_css_data = { threshold: "300" };
+    </script>
+    <script id="rocket_lazyload_css-js-after">
+      !(function o(n, c, a) {
+        function s(t, e) {
+          if (!c[t]) {
+            if (!n[t]) {
+              var r = "function" == typeof require && require;
+              if (!e && r) return r(t, !0);
+              if (u) return u(t, !0);
+              throw (
+                (((r = new Error("Cannot find module '" + t + "'")).code =
+                  "MODULE_NOT_FOUND"),
+                r)
+              );
+            }
+            (r = c[t] = { exports: {} }),
+              n[t][0].call(
+                r.exports,
+                function (e) {
+                  return s(n[t][1][e] || e);
+                },
+                r,
+                r.exports,
+                o,
+                n,
+                c,
+                a
+              );
+          }
+          return c[t].exports;
+        }
+        for (
+          var u = "function" == typeof require && require, e = 0;
+          e < a.length;
+          e++
+        )
+          s(a[e]);
+        return s;
+      })(
+        {
+          1: [
+            function (e, t, r) {
+              "use strict";
+              !(function () {
+                const r =
+                    "undefined" == typeof rocket_pairs ? [] : rocket_pairs,
+                  e =
+                    "undefined" == typeof rocket_excluded_pairs
+                      ? []
+                      : rocket_excluded_pairs;
+                e.map((t) => {
+                  var e = t.selector;
+                  const r = document.querySelectorAll(e);
+                  r.forEach((e) => {
+                    e.setAttribute(
+                      "data-rocket-lazy-bg-".concat(t.hash),
+                      "excluded"
+                    );
+                  });
+                });
+                const o = document.querySelector("#wpr-lazyload-bg");
+                var t = rocket_lazyload_css_data.threshold || 300;
+                const n = new IntersectionObserver(
+                  (e) => {
+                    e.forEach((t) => {
+                      if (t.isIntersecting) {
+                        const e = r.filter((e) => t.target.matches(e.selector));
+                        e.map((t) => {
+                          t &&
+                            ((o.innerHTML += t.style),
+                            t.elements.forEach((e) => {
+                              n.unobserve(e),
+                                e.setAttribute(
+                                  "data-rocket-lazy-bg-".concat(t.hash),
+                                  "loaded"
+                                );
+                            }));
+                        });
+                      }
+                    });
+                  },
+                  { rootMargin: t + "px" }
+                );
+                function c() {
+                  0 <
+                    (0 < arguments.length && void 0 !== arguments[0]
+                      ? arguments[0]
+                      : []
+                    ).length &&
+                    r.forEach((t) => {
+                      try {
+                        const e = document.querySelectorAll(t.selector);
+                        e.forEach((e) => {
+                          "loaded" !==
+                            e.getAttribute(
+                              "data-rocket-lazy-bg-".concat(t.hash)
+                            ) &&
+                            "excluded" !==
+                              e.getAttribute(
+                                "data-rocket-lazy-bg-".concat(t.hash)
+                              ) &&
+                            (n.observe(e),
+                            (t.elements || (t.elements = [])).push(e));
+                        });
+                      } catch (e) {
+                        console.error(e);
+                      }
+                    });
+                }
+                c();
+                const a = (function () {
+                  const o = window.MutationObserver;
+                  return function (e, t) {
+                    if (e && 1 === e.nodeType) {
+                      const r = new o(t);
+                      return (
+                        r.observe(e, {
+                          attributes: !0,
+                          childList: !0,
+                          subtree: !0,
+                        }),
+                        r
+                      );
+                    }
+                  };
+                })();
+                (t = document.querySelector("body")), a(t, c);
+              })();
+            },
+            {},
+          ],
+        },
+        {},
+        [1]
+      );
+    </script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/resources/themes/hello-elementor/assets/js/hello-frontend.min.js?ver=1.0.0" id="hello-theme-frontend-js"></script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/resources/plugins/elementor-pro/assets/js/webpack-pro.runtime.min.js?ver=3.16.2" id="elementor-pro-webpack-runtime-js"></script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/resources/plugins/elementor/assets/js/webpack.runtime.min.js?ver=3.16.4" id="elementor-webpack-runtime-js"></script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/resources/plugins/elementor/assets/js/frontend-modules.min.js?ver=3.16.4" id="elementor-frontend-modules-js"></script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/js/dist/vendor/wp-polyfill-inert.min.js?ver=3.1.2" id="wp-polyfill-inert-js"></script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/js/dist/vendor/regenerator-runtime.min.js?ver=0.14.0" id="regenerator-runtime-js"></script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/js/dist/hooks.min.js?ver=c6aec9a8d4e5a5d543a1" id="wp-hooks-js"></script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/js/dist/hooks.min.js?ver=c6aec9a8d4e5a5d543a1" id="wp-hooks-js"></script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/js/dist/i18n.min.js?ver=7701b0c3857f914212ef" id="wp-i18n-js"></script>
+    <script type="rocketlazyloadscript" id="wp-i18n-js-after">
+      wp.i18n.setLocaleData( { 'text direction\u0004ltr': [ 'ltr' ] } );
+    </script>
+    <script type="rocketlazyloadscript" id="elementor-pro-frontend-js-before">
+      var ElementorProFrontendConfig = {"ajaxurl":".\/assets\/resources\/admin-ajax.php","nonce":"770bbf455f","urls":{"assets":".\/assets\/resources\/plugins\/elementor-pro\/assets\/","rest":"https:\/\/comunidadeaordem.com.br\/wp-json\/"},"shareButtonsNetworks":{"facebook":{"title":"Facebook","has_counter":true},"twitter":{"title":"Twitter"},"linkedin":{"title":"LinkedIn","has_counter":true},"pinterest":{"title":"Pinterest","has_counter":true},"reddit":{"title":"Reddit","has_counter":true},"vk":{"title":"VK","has_counter":true},"odnoklassniki":{"title":"OK","has_counter":true},"tumblr":{"title":"Tumblr"},"digg":{"title":"Digg"},"skype":{"title":"Skype"},"stumbleupon":{"title":"StumbleUpon","has_counter":true},"mix":{"title":"Mix"},"telegram":{"title":"Telegram"},"pocket":{"title":"Pocket","has_counter":true},"xing":{"title":"XING","has_counter":true},"whatsapp":{"title":"WhatsApp"},"email":{"title":"Email"},"print":{"title":"Print"}},"facebook_sdk":{"lang":"pt_BR","app_id":""},"lottie":{"defaultAnimationUrl":".\/assets\/resources\/plugins\/elementor-pro\/modules\/lottie\/assets\/animations\/default.json"}};
+    </script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/resources/plugins/elementor-pro/assets/js/frontend.min.js?ver=3.16.2" id="elementor-pro-frontend-js"></script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/resources/plugins/elementor/assets/lib/waypoints/waypoints.min.js?ver=4.0.2" id="elementor-waypoints-js"></script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/js/jquery/ui/core.min.js?ver=1.13.2" id="jquery-ui-core-js"></script>
+    <script type="rocketlazyloadscript" id="elementor-frontend-js-before">
+      var elementorFrontendConfig = {"environmentMode":{"edit":false,"wpPreview":false,"isScriptDebug":false},"i18n":{"shareOnFacebook":"Compartilhar no Facebook","shareOnTwitter":"Compartilhar no Twitter","pinIt":"Fixar","download":"Baixar","downloadImage":"Baixar imagem","fullscreen":"Tela cheia","zoom":"Zoom","share":"Compartilhar","playVideo":"Reproduzir v\u00eddeo","previous":"Anterior","next":"Pr\u00f3ximo","close":"Fechar","a11yCarouselWrapperAriaLabel":"Carousel | Horizontal scrolling: Arrow Left & Right","a11yCarouselPrevSlideMessage":"Previous slide","a11yCarouselNextSlideMessage":"Next slide","a11yCarouselFirstSlideMessage":"This is the first slide","a11yCarouselLastSlideMessage":"This is the last slide","a11yCarouselPaginationBulletMessage":"Go to slide"},"is_rtl":false,"breakpoints":{"xs":0,"sm":480,"md":768,"lg":1025,"xl":1440,"xxl":1600},"responsive":{"breakpoints":{"mobile":{"label":"Celular em modo retrato","value":767,"default_value":767,"direction":"max","is_enabled":true},"mobile_extra":{"label":"Celular em modo paisagem","value":880,"default_value":880,"direction":"max","is_enabled":false},"tablet":{"label":"Tablet Retrato","value":1024,"default_value":1024,"direction":"max","is_enabled":true},"tablet_extra":{"label":"Paisagem do tablet","value":1200,"default_value":1200,"direction":"max","is_enabled":false},"laptop":{"label":"Laptop","value":1366,"default_value":1366,"direction":"max","is_enabled":false},"widescreen":{"label":"Widescreen","value":2400,"default_value":2400,"direction":"min","is_enabled":false}}},"version":"3.16.4","is_static":false,"experimentalFeatures":{"e_dom_optimization":true,"e_optimized_assets_loading":true,"e_font_icon_svg":true,"additional_custom_breakpoints":true,"container":true,"e_swiper_latest":true,"container_grid":true,"theme_builder_v2":true,"hello-theme-header-footer":true,"landing-pages":true,"nested-elements":true,"e_lazyload":true,"e_global_styleguide":true,"page-transitions":true,"notes":true,"form-submissions":true,"e_scroll_snap":true},"urls":{"assets":".\/assets\/resources\/plugins\/elementor\/assets\/"},"swiperClass":"swiper","settings":{"page":[],"editorPreferences":[]},"kit":{"body_background_background":"classic","active_breakpoints":["viewport_mobile","viewport_tablet"],"global_image_lightbox":"yes","lightbox_enable_counter":"yes","lightbox_enable_fullscreen":"yes","lightbox_enable_zoom":"yes","lightbox_enable_share":"yes","lightbox_title_src":"title","lightbox_description_src":"description","hello_header_logo_type":"title","hello_footer_logo_type":"logo"},"post":{"id":2493,"title":"A%20Ordem%20-%20Inscreva-se%21","excerpt":"","featuredImage":".\/assets\/images\/ordem-favicon-nova.webp"}};
+    </script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/resources/plugins/elementor/assets/js/frontend.min.js?ver=3.16.4" id="elementor-frontend-js"></script>
+    <script type="rocketlazyloadscript" data-rocket-src="./assets/resources/plugins/elementor-pro/assets/js/elements-handlers.min.js?ver=3.16.2" id="pro-elements-handlers-js"></script>
+    <script>
+      window.lazyLoadOptions = [
+        {
+          elements_selector:
+            "img[data-lazy-src],.rocket-lazyload,iframe[data-lazy-src]",
+          data_src: "lazy-src",
+          data_srcset: "lazy-srcset",
+          data_sizes: "lazy-sizes",
+          class_loading: "lazyloading",
+          class_loaded: "lazyloaded",
+          threshold: 300,
+          callback_loaded: function (element) {
+            if (
+              element.tagName === "IFRAME" &&
+              element.dataset.rocketLazyload == "fitvidscompatible"
+            ) {
+              if (element.classList.contains("lazyloaded")) {
+                if (typeof window.jQuery != "undefined") {
+                  if (jQuery.fn.fitVids) {
+                    jQuery(element).parent().fitVids();
+                  }
+                }
+              }
+            }
+          },
+        },
+        {
+          elements_selector: ".rocket-lazyload",
+          data_src: "lazy-src",
+          data_srcset: "lazy-srcset",
+          data_sizes: "lazy-sizes",
+          class_loading: "lazyloading",
+          class_loaded: "lazyloaded",
+          threshold: 300,
+        },
+      ];
+      window.addEventListener(
+        "LazyLoad::Initialized",
+        function (e) {
+          var lazyLoadInstance = e.detail.instance;
+          if (window.MutationObserver) {
+            var observer = new MutationObserver(function (mutations) {
+              var image_count = 0;
+              var iframe_count = 0;
+              var rocketlazy_count = 0;
+              mutations.forEach(function (mutation) {
+                for (var i = 0; i < mutation.addedNodes.length; i++) {
+                  if (
+                    typeof mutation.addedNodes[i].getElementsByTagName !==
+                    "function"
+                  ) {
+                    continue;
+                  }
+                  if (
+                    typeof mutation.addedNodes[i].getElementsByClassName !==
+                    "function"
+                  ) {
+                    continue;
+                  }
+                  images = mutation.addedNodes[i].getElementsByTagName("img");
+                  is_image = mutation.addedNodes[i].tagName == "IMG";
+                  iframes =
+                    mutation.addedNodes[i].getElementsByTagName("iframe");
+                  is_iframe = mutation.addedNodes[i].tagName == "IFRAME";
+                  rocket_lazy =
+                    mutation.addedNodes[i].getElementsByClassName(
+                      "rocket-lazyload"
+                    );
+                  image_count += images.length;
+                  iframe_count += iframes.length;
+                  rocketlazy_count += rocket_lazy.length;
+                  if (is_image) {
+                    image_count += 1;
+                  }
+                  if (is_iframe) {
+                    iframe_count += 1;
+                  }
+                }
+              });
+              if (image_count > 0 || iframe_count > 0 || rocketlazy_count > 0) {
+                lazyLoadInstance.update();
+              }
+            });
+            var b = document.getElementsByTagName("body")[0];
+            var config = { childList: !0, subtree: !0 };
+            observer.observe(b, config);
+          }
+        },
+        !1
+      );
+    </script>
+    <script data-no-minify="1" async="" src="js/lazyload.min.js"></script>
+    <script>
+      function lazyLoadThumb(e, alt) {
+        var t =
+            '<img data-lazy-src="https://i.ytimg.com/vi/ID/hqdefault.jpg" alt="" width="480" height="360"><noscript><img src="https://i.ytimg.com/vi/ID/hqdefault.jpg" alt="" width="480" height="360"></noscript>',
+          a = '<button class="play" aria-label="play Youtube video"></button>';
+        t = t.replace('alt=""', 'alt="' + alt + '"');
+        return t.replace("ID", e) + a;
+      }
+      function lazyLoadYoutubeIframe() {
+        var e = document.createElement("iframe"),
+          t = "ID?autoplay=1";
+        t +=
+          0 === this.parentNode.dataset.query.length
+            ? ""
+            : "&" + this.parentNode.dataset.query;
+        e.setAttribute("src", t.replace("ID", this.parentNode.dataset.src)),
+          e.setAttribute("frameborder", "0"),
+          e.setAttribute("allowfullscreen", "1"),
+          e.setAttribute(
+            "allow",
+            "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+          ),
+          this.parentNode.parentNode.replaceChild(e, this.parentNode);
+      }
+      document.addEventListener("DOMContentLoaded", function () {
+        var e,
+          t,
+          p,
+          a = document.getElementsByClassName("rll-youtube-player");
+        for (t = 0; t < a.length; t++)
+          (e = document.createElement("div")),
+            e.setAttribute("data-id", a[t].dataset.id),
+            e.setAttribute("data-query", a[t].dataset.query),
+            e.setAttribute("data-src", a[t].dataset.src),
+            (e.innerHTML = lazyLoadThumb(a[t].dataset.id, a[t].dataset.alt)),
+            a[t].appendChild(e),
+            (p = e.querySelector(".play")),
+            (p.onclick = lazyLoadYoutubeIframe);
+      });
+    </script>
+    <script>
+      class RocketElementorAnimation {
+        constructor() {
+          (this.deviceMode = document.createElement("span")),
+            (this.deviceMode.id = "elementor-device-mode-wpr"),
+            this.deviceMode.setAttribute("class", "elementor-screen-only"),
+            document.body.appendChild(this.deviceMode);
+        }
+        _detectAnimations() {
+          let t = getComputedStyle(this.deviceMode, ":after").content.replace(
+            /"/g,
+            ""
+          );
+          (this.animationSettingKeys = this._listAnimationSettingsKeys(t)),
+            document
+              .querySelectorAll(".elementor-invisible[data-settings]")
+              .forEach((t) => {
+                const e = t.getBoundingClientRect();
+                if (e.bottom >= 0 && e.top <= window.innerHeight)
+                  try {
+                    this._animateElement(t);
+                  } catch (t) {}
+              });
+        }
+        _animateElement(t) {
+          const e = JSON.parse(t.dataset.settings),
+            i = e._animation_delay || e.animation_delay || 0,
+            n = e[this.animationSettingKeys.find((t) => e[t])];
+          if ("none" === n)
+            return void t.classList.remove("elementor-invisible");
+          t.classList.remove(n),
+            this.currentAnimation && t.classList.remove(this.currentAnimation),
+            (this.currentAnimation = n);
+          let s = setTimeout(() => {
+            t.classList.remove("elementor-invisible"),
+              t.classList.add("animated", n),
+              this._removeAnimationSettings(t, e);
+          }, i);
+          window.addEventListener("rocket-startLoading", function () {
+            clearTimeout(s);
+          });
+        }
+        _listAnimationSettingsKeys(t = "mobile") {
+          const e = [""];
+          switch (t) {
+            case "mobile":
+              e.unshift("_mobile");
+            case "tablet":
+              e.unshift("_tablet");
+            case "desktop":
+              e.unshift("_desktop");
+          }
+          const i = [];
+          return (
+            ["animation", "_animation"].forEach((t) => {
+              e.forEach((e) => {
+                i.push(t + e);
+              });
+            }),
+            i
+          );
+        }
+        _removeAnimationSettings(t, e) {
+          this._listAnimationSettingsKeys().forEach((t) => delete e[t]),
+            (t.dataset.settings = JSON.stringify(e));
+        }
+        static run() {
+          const t = new RocketElementorAnimation();
+          requestAnimationFrame(t._detectAnimations.bind(t));
+        }
+      }
+      document.addEventListener(
+        "DOMContentLoaded",
+        RocketElementorAnimation.run
+      );
+    </script>
+    <script src="js/jquery.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/player_1.js"></script>
+  
+<span id="elementor-device-mode-wpr" class="elementor-screen-only"></span></body></html>
